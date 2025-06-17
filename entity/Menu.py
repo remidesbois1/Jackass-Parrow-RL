@@ -1,0 +1,341 @@
+import pygame
+import json
+
+
+class Menu:
+    def __init__(self, game):
+        self.leaderboard_button_rect = None
+        self.game = game
+        self.menu_font = pygame.font.Font("fonts/Cat Comic.ttf", 80)
+        self.lore_font = pygame.font.Font("fonts/Dimbo Regular.ttf", 38)
+        self.button_font = pygame.font.Font("fonts/Cat Comic.ttf", 50)
+        self.leaderboard_font = pygame.font.Font("fonts/Cat Comic.ttf", 40)
+        self.boss_button_rect = None
+
+    def handleMenu(self, event, game):
+        if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
+            if game.start_button_rect.collidepoint(event.pos) and not game.show_leaderboard:
+                game.show_start_menu = False  # Démarre le jeu
+                game.startGame()
+                pygame.mixer.Sound(game.sounds.son_button).play()
+                game.activeMenu = "game"
+            elif game.boss_button_rect.collidepoint(event.pos) and not game.show_leaderboard and not game.activeMenu == "lore":
+                game.show_start_menu = False
+                game.boss_mode = True
+                pygame.mixer.Sound(game.sounds.son_button).play()
+                game.start_boss_mode()
+                game.activeMenu = "game"
+            if not game.show_lore and not game.show_leaderboard and game.leaderboard_button_rect.collidepoint(event.pos):
+                pygame.mixer.Sound(game.sounds.son_button).play()
+                game.show_leaderboard = True
+            if game.show_leaderboard and game.close_button_rect is not None and game.close_button_rect.collidepoint(event.pos):
+                pygame.mixer.Sound(game.sounds.son_button).play()
+                game.show_leaderboard = False
+                game.activeMenu = "start"
+            if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
+
+                if not game.show_leaderboard and not game.show_lore and game.lore_button_rect.collidepoint(event.pos):
+                    pygame.mixer.Sound(game.sounds.son_button).play()
+                    game.show_lore = True
+                    game.show_leaderboard_button = False
+
+                if game.activeMenu == "lore" and game.close_lore_button_rect.collidepoint(event.pos):
+                    pygame.mixer.Sound(game.sounds.son_button).play()
+                    game.activeMenu = "start"
+                    game.show_lore = False
+                    game.show_leaderboard_button = True
+
+
+
+    def show_start_screen(self):
+        self.game.activeMenu = "start"
+        self.game.gameSurface.blit(self.game.background, (0, 0))
+
+        # TOM
+        tom_image = pygame.image.load("img/tom.png").convert_alpha()
+        tom_image = pygame.transform.scale(tom_image, (
+            tom_image.get_width() * self.game.height // 1.4 // tom_image.get_height(), self.game.height // 1.4))
+
+        tom_rect = tom_image.get_rect(
+            center=(tom_image.get_width() // 2 + 50, self.game.height // 2))
+        self.game.gameSurface.blit(tom_image, tom_rect)
+
+        # PERSO PRINCIPAL
+        perso_image = pygame.image.load("img/playerHD.png").convert_alpha()
+        perso_image = pygame.transform.scale(perso_image, (
+            perso_image.get_width() * self.game.height // 1.4 // perso_image.get_height(), self.game.height // 1.4))
+
+        perso_rect = perso_image.get_rect(
+            center=(perso_image.get_width() // 0.45, self.game.height // 2))
+        self.game.gameSurface.blit(perso_image, perso_rect)
+
+        title_text = self.menu_font.render("Jackass-Parrow", True, (50, 50, 50))
+        title_rect = title_text.get_rect(center=(self.game.weight // 2 + 5, self.game.height // 3 + 5))
+        self.game.gameSurface.blit(title_text, title_rect)
+        title_text = self.menu_font.render("Jackass-Parrow", True, (255, 255, 255))
+        title_rect = title_text.get_rect(center=(self.game.weight // 2, self.game.height // 3))
+        self.game.gameSurface.blit(title_text, title_rect)
+
+        mouse_pos = pygame.mouse.get_pos()
+        button_color = (0, 150, 0)
+        if self.game.start_button_rect.collidepoint(mouse_pos) and not self.game.show_leaderboard:
+            button_color = (0, 200, 0)
+
+        start_text = self.button_font.render("Lancer", True, (255, 255, 255))
+        self.game.start_button_rect = start_text.get_rect()
+        self.game.start_button_rect.width += 10 * 2
+        self.game.start_button_rect.height += 10 * 2
+        self.game.start_button_rect.center = (self.game.weight // 2, self.game.height // 2)
+
+        pygame.draw.rect(self.game.gameSurface, button_color, self.game.start_button_rect, border_radius=10)
+
+        start_text_rect = start_text.get_rect(
+            center=self.game.start_button_rect.center)
+        self.game.gameSurface.blit(start_text, start_text_rect)
+
+        # bouton Boss
+        boss_button_color = (150, 0, 0)
+        if self.game.boss_button_rect.collidepoint(mouse_pos) and not self.game.show_leaderboard:
+            boss_button_color = (200, 0, 0)
+
+        boss_text = self.button_font.render("Mode Boss", True, (255, 255, 255))
+        self.game.boss_button_rect = boss_text.get_rect()
+        self.game.boss_button_rect.width += 10 * 2
+        self.game.boss_button_rect.height += 10 * 2
+        self.game.boss_button_rect.center = (self.game.weight // 2, self.game.height // 1.22)
+
+        pygame.draw.rect(self.game.gameSurface, boss_button_color, self.game.boss_button_rect, border_radius=10)
+        boss_text_rect = boss_text.get_rect(center=self.game.boss_button_rect.center)
+        self.game.gameSurface.blit(boss_text, boss_text_rect)
+
+        # bouton lore
+        lore_text = self.button_font.render("Histoire", True, (255, 255, 255))
+        self.game.lore_button_rect = lore_text.get_rect(center=(self.game.weight // 2, self.game.height // 1.4))
+        pygame.draw.rect(self.game.gameSurface, (139, 69, 19), self.game.lore_button_rect,
+                         border_radius=10)
+        self.game.gameSurface.blit(lore_text, self.game.lore_button_rect)
+
+        if self.game.show_lore:
+            self.show_lore_menu()
+
+            # bouton classement
+        if self.game.show_leaderboard_button:
+            leaderboard_text = self.button_font.render("Classement", True, (255, 255, 255))
+            self.game.leaderboard_button_rect = leaderboard_text.get_rect(
+                center=(self.game.weight // 2, self.game.height // 1.6))
+            pygame.draw.rect(self.game.gameSurface, (139, 69, 19), self.game.leaderboard_button_rect,
+                             border_radius=10)
+            self.game.gameSurface.blit(leaderboard_text, self.game.leaderboard_button_rect)
+
+        if self.game.show_leaderboard:
+            self.show_leaderboard_screen()
+
+
+
+    def show_lore_menu(self):
+        self.game.activeMenu = "lore"
+
+
+        lore_surface = pygame.Surface((self.game.weight // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
+        lore_surface.fill((0, 0, 0, 220))
+        lore_rect = lore_surface.get_rect(center=(self.game.weight // 2, self.game.height // 2))
+        self.game.gameSurface.blit(lore_surface, lore_rect)
+
+        title_text = self.menu_font.render("Histoire", True, (255, 255, 255))
+        title_rect = title_text.get_rect(center=(self.game.weight // 2, self.game.height // 5))
+        self.game.gameSurface.blit(title_text, title_rect)
+
+        lore_content = """
+                Quand il était jeune, Jackass-Parrow n'était pas le pirate le plus agile du navire.
+                C'est pour cela que ses parents lui ont greffé un canon scié sur l'arrière-train en guise de cadeau d'anniversaire.
+                Malheureusement, celui-ci fut exclu de sa fratrie lorsqu'il tira accidentellement dans la tête de son père en voulant s'étirer.
+                Jackass-Parrow passa donc le reste de son enfance dans une jungle, élevé par une tribu indigène.
+
+                Aujourd'hui, menacé par Tom de l'Abbaye et ses chevaliers, Jackass-Parrow est prêt à tout pour défendre ceux qui l'ont recueilli.
+                """
+
+        line_height = 40
+        x_pos = lore_rect.left + 50
+        y_pos = lore_rect.top + 100
+        max_width = lore_rect.width - 100
+
+        wrapped_lines = self.wrap_text(lore_content, self.leaderboard_font, max_width)
+
+        for line in wrapped_lines:
+            text_surface = self.lore_font.render(line, True, (255, 255, 255))
+            text_rect = text_surface.get_rect(topleft=(x_pos, y_pos))
+            self.game.gameSurface.blit(text_surface, text_rect)
+            y_pos += line_height
+
+        close_text = self.button_font.render("Fermer", True, (255, 255, 255))
+        self.game.close_lore_button_rect = close_text.get_rect(center=(self.game.weight // 2, self.game.height // 1.2))
+        pygame.draw.rect(self.game.gameSurface, (180, 69, 40), self.game.close_lore_button_rect,
+                         border_radius=10)
+        self.game.gameSurface.blit(close_text, self.game.close_lore_button_rect)
+
+    def wrap_text(self, text, font, max_width):
+        lines = []
+        words = text.split()
+
+        while words:
+            line = ""
+            while words and font.size(line + words[0])[0] <= max_width:
+                line += (words.pop(0) + " ")
+            lines.append(line)
+
+        return lines
+
+
+    def show_leaderboard_screen(self):
+        self.game.activeMenu = "leaderboard"
+        leaderboard_surface = pygame.Surface((self.game.weight // 1.5, self.game.height // 1.5), pygame.SRCALPHA)
+        leaderboard_surface.fill((139, 69, 19, 220))
+        leaderboard_rect = leaderboard_surface.get_rect(center=(self.game.weight // 2, self.game.height // 2))
+        self.game.gameSurface.blit(leaderboard_surface, leaderboard_rect)
+
+        title_text = self.menu_font.render("Classement", True, (255, 255, 255))
+        title_rect = title_text.get_rect(center=(self.game.weight // 2, self.game.height // 4))
+        self.game.gameSurface.blit(title_text, title_rect)
+
+        try:
+            with open("scores.json", "r") as f:
+                scores = json.load(f)
+        except FileNotFoundError:
+            scores = []
+
+        scores.sort(key=lambda x: x["score"], reverse=True)
+
+        # 10 meilleurs scores
+        y_offset = self.game.height // 3
+        for i, score in enumerate(scores[:10]):
+            score_text = self.leaderboard_font.render(f"{i + 1}. {score['pseudo']} - {score['score']}", True,
+                                                      (255, 255, 255))
+            score_rect = score_text.get_rect(center=(self.game.weight // 2, y_offset))
+            self.game.gameSurface.blit(score_text, score_rect)
+            y_offset += 40
+
+        close_text = self.button_font.render("Fermer", True, (255, 255, 255))
+        self.game.close_button_rect = close_text.get_rect(center=(self.game.weight // 1.35, self.game.height // 4))
+        pygame.draw.rect(self.game.gameSurface, (180, 69, 40), self.game.close_button_rect, border_radius=10)  # Couleur marron
+        self.game.gameSurface.blit(close_text, self.game.close_button_rect)
+
+    def show_end_screen(self):
+        self.game.activeMenu = "end"
+        frame_surface = pygame.Surface((self.game.weight // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
+        frame_surface.fill((0, 0, 0, 164))
+        frame_rect = frame_surface.get_rect(center=(self.game.weight // 2, self.game.height // 2))
+        self.game.gameSurface.blit(frame_surface, frame_rect)
+
+        end_text = self.menu_font.render("Game Over", True, (255, 255, 255))
+        end_text_rect = end_text.get_rect(center=(self.game.weight // 2 + 5, self.game.height // 3 + 5))
+        self.game.gameSurface.blit(end_text, end_text_rect)
+
+        score_text = self.menu_font.render(f"Score : {self.game.player.score}", True, (255, 255, 255))
+        score_text_rect = score_text.get_rect(center=(self.game.weight // 2 + 5, self.game.height // 2 + 5))
+        self.game.gameSurface.blit(score_text, score_text_rect)
+
+        # zone saisie pseudo
+        pygame.draw.rect(self.game.gameSurface, self.game.input_box_color, self.game.input_box, 2)
+        input_text = self.button_font.render(self.game.user_text, True, (255, 255, 255))
+        input_text_rect = input_text.get_rect(
+            topleft=(self.game.input_box.x + 5, self.game.input_box.y + 5))
+        self.game.gameSurface.blit(input_text, input_text_rect)
+
+
+        # bouton enregistrer
+        save_text = self.button_font.render("Enregistrer", True, (255, 255, 255))
+        self.game.save_button_rect = save_text.get_rect(center=(self.game.weight // 2, self.game.height // 1.3))
+
+        # changement de couleur
+        mouse_pos = pygame.mouse.get_pos()
+        save_button_color = (0, 150, 0)
+        if self.game.save_button_rect.collidepoint(mouse_pos):
+            save_button_color = (0, 200, 0)
+
+        pygame.draw.rect(self.game.gameSurface, save_button_color, self.game.save_button_rect, border_radius=10)
+        self.game.gameSurface.blit(save_text, self.game.save_button_rect)
+
+    def show_boss_intro(self):
+        self.game.activeMenu = "intro"
+        intro_text = [
+            "Le combat final approche",
+            "Préparez-vous à combattre le grand...",
+            "** TOM DE L'ABBAYE  **",
+        ]
+
+        font = pygame.font.Font("fonts/Dimbo Regular.ttf", 52)
+        text_color = (255, 255, 255)
+        background_color = (0, 0, 0)
+        padding = 60
+        alpha = 150
+
+        text_surfaces = []
+        max_width = 0
+        total_height = 0
+        for line in intro_text:
+            text_surface = font.render(line, True, text_color)
+            text_surfaces.append(text_surface)
+            max_width = max(max_width, text_surface.get_width())
+            total_height += text_surface.get_height()
+
+        background_width = max_width + 2 * padding
+        background_height = total_height + 2 * padding
+        background_surface = pygame.Surface((background_width, background_height),
+                                            pygame.SRCALPHA)
+        background_surface.fill((*background_color, alpha))
+
+        screen_width = self.game.gameSurface.get_width()
+        screen_height = self.game.gameSurface.get_height()
+        background_x = (screen_width - background_width) // 2
+        background_y = (screen_height - background_height) // 2
+
+        y_offset = padding
+        for text_surface in text_surfaces:
+            text_x = (background_width - text_surface.get_width()) // 2
+            background_surface.blit(text_surface, (text_x, y_offset))
+            y_offset += text_surface.get_height()
+
+        self.game.gameSurface.blit(background_surface, (background_x, background_y))
+
+    def show_boss_win(self):
+        victory_text = [
+            "Victoire !",
+            "Vous avez vaincu l'abominable",
+            "",
+            "Tom de L'Abbaye !!",
+            "",
+            "Merci d'avoir joué!"
+        ]
+
+        font = pygame.font.Font("fonts/Dimbo Regular.ttf", 48)
+        text_color = (255, 255, 255)
+        background_color = (0, 0, 0)
+        padding = 20
+        alpha = 150
+
+        text_surfaces = []
+        max_width = 0
+        total_height = 0
+        for line in victory_text:
+            text_surface = font.render(line, True, text_color)
+            text_surfaces.append(text_surface)
+            max_width = max(max_width, text_surface.get_width())
+            total_height += text_surface.get_height()
+
+        background_width = max_width + 2 * padding
+        background_height = total_height + 2 * padding
+        background_surface = pygame.Surface((background_width, background_height), pygame.SRCALPHA)
+        background_surface.fill((*background_color, alpha))
+
+        screen_width = self.game.gameSurface.get_width()
+        screen_height = self.game.gameSurface.get_height()
+        background_x = (screen_width - background_width) // 2
+        background_y = (screen_height - background_height) // 2
+
+        y_offset = padding
+        for text_surface in text_surfaces:
+            text_x = (background_width - text_surface.get_width()) // 2
+            background_surface.blit(text_surface, (text_x, y_offset))
+            y_offset += text_surface.get_height()
+
+        self.game.gameSurface.blit(background_surface, (background_x, background_y))
