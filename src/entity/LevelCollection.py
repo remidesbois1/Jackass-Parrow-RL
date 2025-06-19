@@ -1,5 +1,5 @@
-from entity.BlockGroup import BlockGroup
-from entity.Block import Block
+from src.entity.BlockGroup import BlockGroup
+from src.entity.Block import Block
 
 class LevelCollection:
     #si il y a  5 élements alors le block est spawnable

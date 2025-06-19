@@ -1,8 +1,8 @@
 import pygame
-from entity.Enemy import Enemy, EnemyAngwy
+from src.entity.Enemy import Enemy, EnemyAngwy
 from random import randint,sample
 
-from entity.EnemyKamikaze import EnemyKamikaze
+from src.entity.EnemyKamikaze import EnemyKamikaze
 
 
 class BlockGroup(pygame.sprite.Group):

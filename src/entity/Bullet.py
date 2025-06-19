@@ -1,9 +1,15 @@
 import pygame
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+BULLET_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "bullet.png"
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("img/bullet.png").convert_alpha()
+        self.image = pygame.image.load(str(BULLET_IMAGE_PATH)).convert_alpha()
         self.rect = self.image.get_rect(x=x, y=y)
         self.direction = direction
         self.speed = 10

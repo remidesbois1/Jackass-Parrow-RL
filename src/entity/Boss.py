@@ -3,10 +3,17 @@ import time
 
 import pygame
 
-from entity.Block import Block
-from entity.BlockGroup import BlockGroup
-from entity.EnemyBullet import EnemyBullet
+from src.entity.Block import Block
+from src.entity.BlockGroup import BlockGroup
+from src.entity.EnemyBullet import EnemyBullet
+from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+TOM_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "tom.png"
+TOM_DAMAGE_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "tomDamage.png"
+
+BOSS_THEME_PATH = PROJECT_ROOT / "assets" / "sounds" / "bossTheme.mp3"
+MAIN_THEME_PATH = PROJECT_ROOT / "assets" / "sounds" / "mainTheme.mp3"
 
 class Boss(pygame.sprite.Sprite):
     X = 900
@@ -20,9 +27,9 @@ class Boss(pygame.sprite.Sprite):
         self.victory_shown = False
         self.intro_finished = False
         self.scene = scene
-        self.imageBase =  pygame.transform.scale(pygame.image.load('img/tom.png').convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
+        self.imageBase =  pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)).convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
         self.image = self.imageBase
-        self.imageDamage = pygame.transform.scale( pygame.image.load('img/tomDamage.png').convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
+        self.imageDamage = pygame.transform.scale( pygame.image.load(str(TOM_DAMAGE_IMAGE_PATH)).convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
         self.rect = self.image.get_rect(x=self.X, y=self.Y)
         self.health = 10
         self.evasive = False
@@ -36,7 +43,7 @@ class Boss(pygame.sprite.Sprite):
         self.timeLastBullet = 0
 
         self.bouclier = BlockGroup(self.scene,None)
-        pygame.mixer.music.load("sound/bossTheme.mp3")
+        pygame.mixer.music.load(str(BOSS_THEME_PATH))
         pygame.mixer.music.play(-1)
 
     def generateBouclier(self):
@@ -87,7 +94,7 @@ class Boss(pygame.sprite.Sprite):
 
                 if time.time() - self.deathTime > 5:
                     self.die = True
-                    pygame.mixer.music.load("sound/mainTheme.mp3")
+                    pygame.mixer.music.load(str(MAIN_THEME_PATH))
                     pygame.mixer.music.play(-1)
                     game.boss_Killed = True
                     if not hasattr(self, "victory_shown"):

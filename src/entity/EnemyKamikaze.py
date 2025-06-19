@@ -1,14 +1,22 @@
 from random import randint
 import pygame
-from entity.Enemy import Enemy
+from src.entity.Enemy import Enemy
+from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CHICKEN_BOMB_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "chicken_bomb.png"
+CHICKEN_BOMB_WALK_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "chicken_bomb_walk.png"
+
+CHICKEN_EXPLOSION_FRAMES = [
+    f"{str(PROJECT_ROOT)}/assets/img/entity/explosion_{i}.png" for i in range(1, 5)
+]
 
 class EnemyKamikaze(Enemy):
     def __init__(self, x, y, platform):
         super().__init__(x, y)
         self.walk_frames = [
-            pygame.image.load("img/chicken_bomb.png").convert_alpha(),
-            pygame.image.load("img/chicken_bomb_walk.png").convert_alpha()
+            pygame.image.load(str(CHICKEN_BOMB_IMAGE_PATH)).convert_alpha(),
+            pygame.image.load(str(CHICKEN_BOMB_WALK_IMAGE_PATH)).convert_alpha()
         ]
         self.walk_index = 0
         self.image = self.walk_frames[self.walk_index]
@@ -21,7 +29,7 @@ class EnemyKamikaze(Enemy):
 
         # explosion
         self.explosion_frames = [
-            pygame.image.load(f"img/explosion_{i}.png").convert_alpha() for i in range(1, 5)
+            pygame.image.load(CHICKEN_EXPLOSION_FRAMES[i]).convert_alpha() for i in range(4)
         ]
         self.explosion_index = 0
         self.explosion_timer = 0

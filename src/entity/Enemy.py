@@ -2,9 +2,14 @@ from random import randint
 
 import pygame
 
-from entity.EnemyBullet import EnemyBullet
-from entity.Sound import Sound
+from src.entity.EnemyBullet import EnemyBullet
+from src.entity.Sound import Sound
+from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CHEVALIER_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "chevalier.png"
+CHEVALIER_MORT_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" /"entity" / "chevalierMort.png"
+CHEVALIER_ANGWY_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "chevalier_angwy.png"
 
 class Enemy(pygame.sprite.Sprite):
     SIZE = (75,90)
@@ -12,7 +17,7 @@ class Enemy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.sounds = Sound()
         self.direction = 'gauche'
-        self.image = pygame.image.load("img/chevalier.png").convert_alpha()
+        self.image = pygame.image.load(str(CHEVALIER_IMAGE_PATH)).convert_alpha()
         self.rect = self.image.get_rect(x=x, y=y)
         self.alive = True
         self.last_shot_time = 0
@@ -50,7 +55,7 @@ class Enemy(pygame.sprite.Sprite):
         pygame.mixer.Sound(self.sounds.son_knight_hurt).play()
         self.image.fill((0, 0, 255))
         self.alive = False
-        self.image = pygame.image.load("img/chevalierMort.png").convert_alpha()
+        self.image = pygame.image.load(str(CHEVALIER_MORT_IMAGE_PATH)).convert_alpha()
         self.image.set_alpha(150)
 
 class EnemyAngwy(Enemy):
@@ -58,5 +63,5 @@ class EnemyAngwy(Enemy):
         super().__init__(x, y)
         self.score = 150
         self.angryCoef = 0.7
-        self.image = pygame.image.load("img/chevalier_angwy.png").convert_alpha()
+        self.image = pygame.image.load(str(CHEVALIER_ANGWY_IMAGE_PATH)).convert_alpha()
         self.rect = self.image.get_rect(x=x, y=y)

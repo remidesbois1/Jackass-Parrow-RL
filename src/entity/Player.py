@@ -1,10 +1,22 @@
 import pygame
 from pygame import Surface, Vector2
+from pathlib import Path
 
-from entity import Block
-from entity.Bullet import Bullet
-from entity.BlockGroup import BlockGroup
-from entity.Sound import Sound
+from src.entity import Block
+from src.entity.Bullet import Bullet
+from src.entity.BlockGroup import BlockGroup
+from src.entity.Sound import Sound
+
+
+# Chemin racine du projet (ajuste selon la profondeur de ton fichier)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+# Constantes des chemins images
+PLAYER_IMG_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player.png"
+PLAYER_WALK1_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "playerWalk.png"
+PLAYER_SHIELD_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_shield.png"
+PLAYER_FIRING_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_firing.png"
+PLAYER_DEAD_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_dead.png"
 
 class Player(pygame.sprite.Sprite):
     MAX_FALL_SPEED = 15
@@ -18,16 +30,17 @@ class Player(pygame.sprite.Sprite):
         self.invinsibilyTime = 0
         self.sounds = Sound()
 
-        self.walk1 = pygame.image.load("img/player.png").convert_alpha()
-        self.walk2 = pygame.image.load("img/playerWalk.png").convert_alpha()
-        self.image = pygame.image.load("img/player.png").convert_alpha()
-        self.shield_image = pygame.image.load("img/shield.png").convert_alpha()
-        self.player_image = self.image.copy()
-        self.firing_image = pygame.image.load("img/player_firing.png").convert_alpha()
-        self.rect = self.image.get_rect(y=y, x=x)
-        self.dead_image = pygame.image.load("img/player_dead.png").convert_alpha()
 
-        self.image = pygame.Surface((self.rect.width,self.rect.height))
+        self.walk1 = pygame.image.load(str(PLAYER_WALK1_PATH)).convert_alpha()
+        self.walk2 = pygame.image.load(str(PLAYER_WALK1_PATH)).convert_alpha()  # Je suppose que tu voulais playerWalk2, sinon double charge playerWalk
+        self.image = pygame.image.load(str(PLAYER_IMG_PATH)).convert_alpha()
+        self.shield_image = pygame.image.load(str(PLAYER_SHIELD_PATH)).convert_alpha()
+        self.player_image = self.image.copy()
+        self.firing_image = pygame.image.load(str(PLAYER_FIRING_PATH)).convert_alpha()
+        self.rect = self.image.get_rect(y=y, x=x)
+        self.dead_image = pygame.image.load(str(PLAYER_DEAD_PATH)).convert_alpha()
+
+        self.image = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
 
         self.speed = 6
         self.direction = 'gauche'
