@@ -49,6 +49,8 @@ class App:
         self.background = None
         self.player = None
         self.clock = pygame.time.Clock()
+        self.delta_time = 1
+
         self.waveNumber = None
         self.idNiveau = 0
 
@@ -174,7 +176,7 @@ class App:
         if self.activeMenu == "game":
             keys = pygame.key.get_pressed()
             self.Blocs.update()
-            self.player.handleMove(keys, self.bullets)
+            self.player.handleMove(keys, self.bullets,self.delta_time)
             self.enemies.update(self.player, self.enemy_bullets, self.bullets)
             self.enemy_bullets.update(self.weight, self.Blocs, self.player)
 
@@ -247,7 +249,7 @@ class App:
             self.menu.show_start_screen()
         else:
             self.gameSurface.blit(self.background, (0, 0))
-            self.player.update(self.gameSurface, self.Blocs, self.enemy_bullets)
+            self.player.update(self.gameSurface, self.Blocs, self.enemy_bullets,self.delta_time)
             self.Blocs.draw(self.gameSurface)
             self.bullets.draw(self.gameSurface)
             self.enemies.draw(self.gameSurface)
@@ -276,5 +278,6 @@ class App:
             self.onLoop()
             self.render()
             pygame.display.flip()
-            self.clock.tick(60)
+            self.delta_time =  self.clock.tick(60) / 1000.0
+            #print(f"Delta Time: {self.deltaTime:.3f} seconds")
         self.shutdown()
