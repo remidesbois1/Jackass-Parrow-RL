@@ -1,8 +1,12 @@
 import pygame
 from pygame import Surface
-from entity.Enemy import  Enemy
+from src.entity.Enemy import  Enemy
 from random import randint
+from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+BLOCK_IMAGE_PATH = PROJECT_ROOT/ "assets" / "img" / "block" / "block.png"
+DIRT_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "block" / "dirt.png"
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, spawnable=False, transparent=False):
@@ -13,9 +17,9 @@ class Block(pygame.sprite.Sprite):
 
         if not self.transparent:
             if (y == 16):
-                texture = pygame.image.load("img/dirt.png").convert_alpha()
+                texture = pygame.image.load(str(DIRT_IMAGE_PATH)).convert_alpha()
             else:
-                texture = pygame.image.load("img/block.png").convert_alpha()
+                texture = pygame.image.load(str(BLOCK_IMAGE_PATH)).convert_alpha()
 
             for textureY in range(height):
                 for textureX in range(width):

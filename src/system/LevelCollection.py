@@ -1,5 +1,5 @@
-from entity.BlockGroup import BlockGroup
-from entity.Block import Block
+from src.block.BlockGroup import BlockGroup
+from src.block.Block import Block
 
 class LevelCollection:
     #si il y a  5 élements alors le block est spawnable
@@ -165,6 +165,7 @@ class LevelCollection:
         #mur
         self.blocs.add(Block(-2,-8,1,28))
         self.blocs.add(Block(25, -8, 1, 28))
+        
         for bloc in lstBloc:
             if len(bloc) == 2:
                 self.playerSpawn = (bloc[0]*50,bloc[1]*50)

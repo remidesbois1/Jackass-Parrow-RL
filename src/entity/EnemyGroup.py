@@ -1,5 +1,5 @@
 import pygame
-from entity.Enemy import  Enemy
+from src.entity.Enemy import  Enemy
 from random import randint,sample
 
 class EnemyGroup(pygame.sprite.Group):

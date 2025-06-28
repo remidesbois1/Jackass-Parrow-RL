@@ -1,15 +1,22 @@
 import pygame
 import json
+from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+CAT_COMIC_FONT_PATH = PROJECT_ROOT / "assets" / "fonts" / "Cat Comic.ttf"
+DIMBO_FONT_PATH = PROJECT_ROOT / "assets" / "fonts" / "Dimbo Regular.ttf"
+TOM_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "tom.png"
+PLAYERHD_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "playerHD.png"
 
 class Menu:
     def __init__(self, game):
         self.leaderboard_button_rect = None
         self.game = game
-        self.menu_font = pygame.font.Font("fonts/Cat Comic.ttf", 80)
-        self.lore_font = pygame.font.Font("fonts/Dimbo Regular.ttf", 38)
-        self.button_font = pygame.font.Font("fonts/Cat Comic.ttf", 50)
-        self.leaderboard_font = pygame.font.Font("fonts/Cat Comic.ttf", 40)
+        self.menu_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 80)
+        self.lore_font = pygame.font.Font(str(DIMBO_FONT_PATH), 38)
+        self.button_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 50)
+        self.leaderboard_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 40)
         self.boss_button_rect = None
 
     def handleMenu(self, event, game):
@@ -52,7 +59,7 @@ class Menu:
         self.game.gameSurface.blit(self.game.background, (0, 0))
 
         # TOM
-        tom_image = pygame.image.load("img/tom.png").convert_alpha()
+        tom_image = pygame.image.load(str(TOM_IMAGE_PATH)).convert_alpha()
         tom_image = pygame.transform.scale(tom_image, (
             tom_image.get_width() * self.game.height // 1.4 // tom_image.get_height(), self.game.height // 1.4))
 
@@ -61,7 +68,7 @@ class Menu:
         self.game.gameSurface.blit(tom_image, tom_rect)
 
         # PERSO PRINCIPAL
-        perso_image = pygame.image.load("img/playerHD.png").convert_alpha()
+        perso_image = pygame.image.load(str(PLAYERHD_IMAGE_PATH)).convert_alpha()
         perso_image = pygame.transform.scale(perso_image, (
             perso_image.get_width() * self.game.height // 1.4 // perso_image.get_height(), self.game.height // 1.4))
 
@@ -263,7 +270,7 @@ class Menu:
             "** TOM DE L'ABBAYE  **",
         ]
 
-        font = pygame.font.Font("fonts/Dimbo Regular.ttf", 52)
+        font = pygame.font.Font(str(DIMBO_FONT_PATH), 52)
         text_color = (255, 255, 255)
         background_color = (0, 0, 0)
         padding = 60
@@ -307,7 +314,7 @@ class Menu:
             "Merci d'avoir joué!"
         ]
 
-        font = pygame.font.Font("fonts/Dimbo Regular.ttf", 48)
+        font = pygame.font.Font(str(DIMBO_FONT_PATH), 48)
         text_color = (255, 255, 255)
         background_color = (0, 0, 0)
         padding = 20
