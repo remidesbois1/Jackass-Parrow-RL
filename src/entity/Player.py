@@ -2,10 +2,10 @@ import pygame
 from pygame import Surface, Vector2
 from pathlib import Path
 
-from src.entity import Block
+from src.block.Block import Block
 from src.entity.Bullet import Bullet
-from src.entity.BlockGroup import BlockGroup
-from src.entity.Sound import Sound
+from src.block.BlockGroup import BlockGroup
+from src.system.Sound import Sound
 
 
 # Chemin racine du projet (ajuste selon la profondeur de ton fichier)

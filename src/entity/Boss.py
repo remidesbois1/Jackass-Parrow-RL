@@ -3,8 +3,8 @@ import time
 
 import pygame
 
-from src.entity.Block import Block
-from src.entity.BlockGroup import BlockGroup
+from src.block.Block import Block
+from src.block.BlockGroup import BlockGroup
 from src.entity.EnemyBullet import EnemyBullet
 from pathlib import Path
 

@@ -2,15 +2,15 @@ import pygame
 import json
 from pathlib import Path
 from random import randint
-from src.entity.Block import Block
-from src.entity.BlockGroup import BlockGroup
+from src.block.Block import Block
+from src.block.BlockGroup import BlockGroup
 from src.entity.Boss import Boss
 from src.entity.Enemy import Enemy
-from src.entity.Menu import Menu
+from src.gui.Menu import Menu
 from src.entity.Player import Player
-from src.entity.LevelCollection import LevelCollection
+from src.system.LevelCollection import LevelCollection
 from src.entity.EnemyGroup import EnemyGroup
-from src.entity.Sound import Sound
+from src.system.Sound import Sound
 
 # === CONSTANTES DE CHEMINS ===
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -34,6 +34,8 @@ class App:
     def __init__(self):
         self.boss_Killed = None
         self.boss = None
+
+
         self.tom = None
         self.close_lore_button_rect = None
         self.lore_button_rect = None

@@ -3,7 +3,7 @@ from random import randint
 import pygame
 
 from src.entity.EnemyBullet import EnemyBullet
-from src.entity.Sound import Sound
+from src.system.Sound import Sound
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
