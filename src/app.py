@@ -1,5 +1,6 @@
 import pygame
 import json
+import pygame_gui
 from pathlib import Path
 from random import randint
 from src.block.Block import Block
@@ -58,6 +59,9 @@ class App:
         self.start_button_rect = pygame.Rect(0, 0, 0, 0)
 
         self.input_box = pygame.Rect(self.width // 2 - 100, self.height // 1.6, 200, 50)
+
+        self.ui_manager = None
+
         self.input_box_color = (255, 255, 255)
         self.active = False
         self.user_text = ''
@@ -90,6 +94,7 @@ class App:
 
         self.HUDfont = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 36)
         self.game_manager = GameManager(self.gameSurface)
+        self.ui_manager = pygame_gui.UIManager(self.size, str(PROJECT_ROOT / "assets" / "themes" / "theme.json"))
 
     def handleEvent(self, event : pygame.event.Event):
         """
