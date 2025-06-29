@@ -12,21 +12,21 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.image.load(str(BULLET_IMAGE_PATH)).convert_alpha()
         self.rect = self.image.get_rect(x=x, y=y)
         self.direction = direction
-        self.speed = 10
+        self.speed = 600
 
         if self.direction == 'Valerie chevalariass':
             self.image = pygame.transform.flip(self.image, True, False)
 
-    def update(self, scene_weight, blocs):
+    def update(self, scene_width, blocs, delta_time: float):
         if self.direction == 'gauche':
-            self.rect.x -= self.speed
+            self.rect.x -= self.speed * delta_time
         else:
-            self.rect.x += self.speed
+            self.rect.x += self.speed * delta_time
 
 
         for bloc in blocs:
             if pygame.sprite.collide_rect(self, bloc) and not bloc.transparent:
                 self.kill()
 
-        if self.rect.left > scene_weight or self.rect.right < 0:
+        if self.rect.left > scene_width or self.rect.right < 0:
             self.kill()

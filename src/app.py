@@ -56,7 +56,7 @@ class App:
 
         self._running = True
         self.gameSurface = None
-        self.size = self.weight, self.height = 1280, 800
+        self.size = self.width, self.height = 1280, 800
         self.bullets = None
         self.enemies = None
         self.enemy_bullets = None
@@ -69,7 +69,7 @@ class App:
         self.game_over = False
         self.game_over_time = 0
 
-        self.input_box = pygame.Rect(self.weight // 2 - 100, self.height // 1.6, 200, 50)
+        self.input_box = pygame.Rect(self.width // 2 - 100, self.height // 1.6, 200, 50)
         self.input_box_color = (255, 255, 255)
         self.active = False
         self.user_text = ''
@@ -178,12 +178,12 @@ class App:
             self.Blocs.update()
             self.player.handleMove(keys, self.bullets,self.delta_time)
             self.enemies.update(self.player, self.enemy_bullets, self.bullets)
-            self.enemy_bullets.update(self.weight, self.Blocs, self.player)
+            self.enemy_bullets.update(self.width, self.Blocs, self.delta_time)
 
             if self.fight_boss:
-                self.bullets.update(self.weight, self.Blocs.sprites() + self.boss.bouclier.sprites())
+                self.bullets.update(self.width, self.Blocs.sprites() + self.boss.bouclier.sprites(),self.delta_time)
             else:
-                self.bullets.update(self.weight, self.Blocs)
+                self.bullets.update(self.width, self.Blocs, self.delta_time)
 
             if self.player.health <= 0 and not self.game_over:
                 self.game_over = True

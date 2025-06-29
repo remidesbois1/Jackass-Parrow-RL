@@ -14,5 +14,5 @@ class EnemyBullet(Bullet):
         if self.direction == 'Valerie Chevalariass':
             self.image = pygame.transform.flip(self.image, True, False)
 
-    def update(self, scene_weight, blocs, player):
-        super().update(scene_weight, blocs)
+    def update(self, scene_width, blocs, delta_time: float):
+        super().update(scene_width, blocs,delta_time)
