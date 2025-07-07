@@ -53,7 +53,7 @@ class App:
         self.size = self.width, self.height = 1280, 800
 
 
-        self.activeMenu = None
+        self.activeMenu = 'start'
         self.show_start_menu = True
         self.show_lore = False
         self.start_button_rect = pygame.Rect(0, 0, 0, 0)
@@ -85,7 +85,7 @@ class App:
         pygame.mixer.music.load(str(MAIN_THEME_PATH))
         pygame.mixer.music.play(-1)
         self.sounds = Sound()
-        self.menu = Menu(self)
+        self.menu = Menu(self, self.ui_manager)
         self.gameSurface = pygame.display.set_mode(
             self.size, pygame.HWSURFACE | pygame.DOUBLEBUF
         )
@@ -96,14 +96,8 @@ class App:
         self.game_manager = GameManager(self.gameSurface)
         self.ui_manager = pygame_gui.UIManager(self.size, str(PROJECT_ROOT / "assets" / "themes" / "theme.json"))
 
-    def handleEvent(self, event : pygame.event.Event):
-        """
-        handle a single pygame Event passed in args like clicking button, closing the game etc..
-        also call sub handleEvent function like menu.handleEvent
-
-        Args:
-            event (pygame.event.Event): Event returned by the function pygame.event.get() during the actual loop tick
-        """
+    def handleEvent(self, event):
+        self.ui_manager.process_events(event)
         if event.type == pygame.QUIT:
             self._running = False
 
@@ -127,10 +121,12 @@ class App:
                     else:
                         self.user_text += event.unicode
 
-    def onLoop(self)->None:
+        
+    def onLoop(self):
         """
         manage all calculation and detection process on the current loop
         """
+        self.ui_manager.update(60)
         if self.activeMenu == "game":
             keys = pygame.key.get_pressed()
             
@@ -178,6 +174,9 @@ class App:
             health_text = self.HUDfont.render(f"Vie: {self.game_manager.player.health}", True, (255, 255, 255))
             self.gameSurface.blit(score_text, (10, 10))
             self.gameSurface.blit(health_text, (10, 40))
+        
+        self.ui_manager.draw_ui(self.gameSurface)
+
 
     def shutdown(self)->None:
         """

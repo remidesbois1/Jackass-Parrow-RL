@@ -1,5 +1,8 @@
+# src/gui/Menu.py
+
 import pygame
 import json
+import pygame_gui
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -8,55 +11,92 @@ CAT_COMIC_FONT_PATH = PROJECT_ROOT / "assets" / "fonts" / "Cat Comic.ttf"
 DIMBO_FONT_PATH = PROJECT_ROOT / "assets" / "fonts" / "Dimbo Regular.ttf"
 TOM_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "tom.png"
 PLAYERHD_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "playerHD.png"
+SCORES_FILE_PATH = PROJECT_ROOT / "scores.json"
 
 class Menu:
-    def __init__(self, game):
-        self.leaderboard_button_rect = None
+    def __init__(self, game, ui_manager):
         self.game = game
+        self.ui_manager = ui_manager
         self.menu_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 80)
         self.lore_font = pygame.font.Font(str(DIMBO_FONT_PATH), 38)
         self.button_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 50)
         self.leaderboard_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 40)
-        self.boss_button_rect = None
+        
+        self.start_button = None
+        self.boss_button = None
+        self.lore_button = None
+        self.leaderboard_button = None
+        
+        # Windows
+        self.lore_window = None
+        self.leaderboard_window = None
+        
+        self.setup_start_menu()
 
     def handleMenu(self, event, game:"App"):
         if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
             if game.start_button_rect.collidepoint(event.pos) and not game.show_leaderboard:
                 game.show_start_menu = False  # Démarre le jeu
                 game.game_manager.start_game()
+    def setup_start_menu(self):
+        button_width = 220
+        button_height = 80
+        x_pos = self.game.weight // 2 - button_width // 2
+        
+        self.start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2), (button_width, button_height)),
+                                                            text='Lancer',
+                                                            manager=self.ui_manager,
+                                                            object_id='@menu_button')
+
+        self.boss_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2 + 70), (button_width, button_height)),
+                                                           text='Mode Boss',
+                                                           manager=self.ui_manager,
+                                                           object_id='@menu_button')
+
+        self.lore_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2 + 140), (button_width, button_height)),
+                                                         text='Histoire',
+                                                         manager=self.ui_manager,
+                                                         object_id='@menu_button')
+                                                         
+        self.leaderboard_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2 + 210), (button_width, button_height)),
+                                                                    text='Classement',
+                                                                    manager=self.ui_manager,
+                                                                    object_id='@menu_button')
+    def handleMenu(self, event, game):
+        if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            if event.ui_element == self.start_button:
+                game.show_start_menu = False
+                game.startGame()
                 pygame.mixer.Sound(game.sounds.son_button).play()
                 game.activeMenu = "game"
-            elif game.boss_button_rect.collidepoint(event.pos) and not game.show_leaderboard and not game.activeMenu == "lore":
+                self.hide_start_menu()
+            elif event.ui_element == self.boss_button:
                 game.show_start_menu = False
                 game.game_manager.boss_mode = True
                 pygame.mixer.Sound(game.sounds.son_button).play()
                 game.game_manager.start_boss_mode()
                 game.activeMenu = "game"
-            if not game.show_lore and not game.show_leaderboard and game.leaderboard_button_rect.collidepoint(event.pos):
+                self.hide_start_menu()
+            elif event.ui_element == self.lore_button:
                 pygame.mixer.Sound(game.sounds.son_button).play()
-                game.show_leaderboard = True
-            if game.show_leaderboard and game.close_button_rect is not None and game.close_button_rect.collidepoint(event.pos):
+                self.show_lore_window()
+            elif event.ui_element == self.leaderboard_button:
                 pygame.mixer.Sound(game.sounds.son_button).play()
-                game.show_leaderboard = False
-                game.activeMenu = "start"
-            if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
+                self.show_leaderboard_window()
 
-                if not game.show_leaderboard and not game.show_lore and game.lore_button_rect.collidepoint(event.pos):
-                    pygame.mixer.Sound(game.sounds.son_button).play()
-                    game.show_lore = True
-                    game.show_leaderboard_button = False
-
-                if game.activeMenu == "lore" and game.close_lore_button_rect.collidepoint(event.pos):
-                    pygame.mixer.Sound(game.sounds.son_button).play()
-                    game.activeMenu = "start"
-                    game.show_lore = False
-                    game.show_leaderboard_button = True
-
-
+        if event.type == pygame_gui.UI_WINDOW_CLOSE:
+            if event.ui_element == self.lore_window:
+                self.lore_window = None
+            if event.ui_element == self.leaderboard_window:
+                self.leaderboard_window = None
 
     def show_start_screen(self):
         self.game.activeMenu = "start"
-        self.game.gameSurface.blit(self.game.background, (0, 0))
+        self.start_button.show()
+        self.boss_button.show()
+        self.lore_button.show()
+        self.leaderboard_button.show()
+
 
         # TOM
         tom_image = pygame.image.load(str(TOM_IMAGE_PATH)).convert_alpha()
@@ -83,10 +123,6 @@ class Menu:
         title_rect = title_text.get_rect(center=(self.game.width // 2, self.game.height // 3))
         self.game.gameSurface.blit(title_text, title_rect)
 
-        mouse_pos = pygame.mouse.get_pos()
-        button_color = (0, 150, 0)
-        if self.game.start_button_rect.collidepoint(mouse_pos) and not self.game.show_leaderboard:
-            button_color = (0, 200, 0)
 
         start_text = self.button_font.render("Lancer", True, (255, 255, 255))
         self.game.start_button_rect = start_text.get_rect()
@@ -94,16 +130,37 @@ class Menu:
         self.game.start_button_rect.height += 10 * 2
         self.game.start_button_rect.center = (self.game.width // 2, self.game.height // 2)
 
-        pygame.draw.rect(self.game.gameSurface, button_color, self.game.start_button_rect, border_radius=10)
+    def hide_start_menu(self):
+        self.start_button.hide()
+        self.boss_button.hide()
+        self.lore_button.hide()
+        self.leaderboard_button.hide()
 
-        start_text_rect = start_text.get_rect(
-            center=self.game.start_button_rect.center)
-        self.game.gameSurface.blit(start_text, start_text_rect)
+    def show_lore_window(self):
+        if self.lore_window is None:
+            lore_text = """
+            Quand il était jeune, Jackass-Parrow n'était pas le pirate le plus agile du navire.
+            C'est pour cela que ses parents lui ont greffé un canon scié sur l'arrière-train en guise de cadeau d'anniversaire.
+            Malheureusement, celui-ci fut exclu de sa fratrie lorsqu'il tira accidentellement dans la tête de son père en voulant s'étirer.
+            Jackass-Parrow passa donc le reste de son enfance dans une jungle, élevé par une tribu indigène.
 
-        # bouton Boss
-        boss_button_color = (150, 0, 0)
-        if self.game.boss_button_rect.collidepoint(mouse_pos) and not self.game.show_leaderboard:
-            boss_button_color = (200, 0, 0)
+            Aujourd'hui, menacé par Tom de l'Abbaye et ses chevaliers, Jackass-Parrow est prêt à tout pour défendre ceux qui l'ont recueilli.
+            """
+            self.lore_window = pygame_gui.windows.UIMessageWindow(
+                rect=pygame.Rect((self.game.weight // 4, self.game.height // 4), (self.game.weight // 2, self.game.height // 2)),
+                html_message=lore_text,
+                manager=self.ui_manager,
+                object_id='@lore_window',
+                window_title='Histoire'
+            )
+
+    def show_leaderboard_window(self):
+        if self.leaderboard_window is None:
+            try:
+                with open(SCORES_FILE_PATH, "r") as f:
+                    scores = json.load(f)
+            except FileNotFoundError:
+                scores = []
 
         boss_text = self.button_font.render("Mode Boss", True, (255, 255, 255))
         self.game.boss_button_rect = boss_text.get_rect()
@@ -346,3 +403,41 @@ class Menu:
             y_offset += text_surface.get_height()
 
         self.game.gameSurface.blit(background_surface, (background_x, background_y))
+
+
+    # pareil à réecrire
+    def show_end_screen(self):
+        self.game.activeMenu = "end"
+        frame_surface = pygame.Surface((self.game.weight // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
+        frame_surface.fill((0, 0, 0, 164))
+        frame_rect = frame_surface.get_rect(center=(self.game.weight // 2, self.game.height // 2))
+        self.game.gameSurface.blit(frame_surface, frame_rect)
+
+        end_text = self.menu_font.render("Game Over", True, (255, 255, 255))
+        end_text_rect = end_text.get_rect(center=(self.game.weight // 2 + 5, self.game.height // 3 + 5))
+        self.game.gameSurface.blit(end_text, end_text_rect)
+
+        score_text = self.menu_font.render(f"Score : {self.game.player.score}", True, (255, 255, 255))
+        score_text_rect = score_text.get_rect(center=(self.game.weight // 2 + 5, self.game.height // 2 + 5))
+        self.game.gameSurface.blit(score_text, score_text_rect)
+
+        # zone saisie pseudo
+        pygame.draw.rect(self.game.gameSurface, self.game.input_box_color, self.game.input_box, 2)
+        input_text = self.button_font.render(self.game.user_text, True, (255, 255, 255))
+        input_text_rect = input_text.get_rect(
+            topleft=(self.game.input_box.x + 5, self.game.input_box.y + 5))
+        self.game.gameSurface.blit(input_text, input_text_rect)
+
+
+        # bouton enregistrer
+        save_text = self.button_font.render("Enregistrer", True, (255, 255, 255))
+        self.game.save_button_rect = save_text.get_rect(center=(self.game.weight // 2, self.game.height // 1.3))
+
+        # changement de couleur
+        mouse_pos = pygame.mouse.get_pos()
+        save_button_color = (0, 150, 0)
+        if self.game.save_button_rect.collidepoint(mouse_pos):
+            save_button_color = (0, 200, 0)
+
+        pygame.draw.rect(self.game.gameSurface, save_button_color, self.game.save_button_rect, border_radius=10)
+        self.game.gameSurface.blit(save_text, self.game.save_button_rect)
