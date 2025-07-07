@@ -19,16 +19,16 @@ class Menu:
         self.leaderboard_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 40)
         self.boss_button_rect = None
 
-    def handleMenu(self, event, game):
+    def handleMenu(self, event, game:"App"):
         if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
             if game.start_button_rect.collidepoint(event.pos) and not game.show_leaderboard:
                 game.show_start_menu = False  # Démarre le jeu
-                game.startGame()
+                game.game_manager.startGame()
                 pygame.mixer.Sound(game.sounds.son_button).play()
                 game.activeMenu = "game"
             elif game.boss_button_rect.collidepoint(event.pos) and not game.show_leaderboard and not game.activeMenu == "lore":
                 game.show_start_menu = False
-                game.boss_mode = True
+                game.game_manager.boss_mode = True
                 pygame.mixer.Sound(game.sounds.son_button).play()
                 game.start_boss_mode()
                 game.activeMenu = "game"
@@ -237,7 +237,7 @@ class Menu:
         end_text_rect = end_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 3 + 5))
         self.game.gameSurface.blit(end_text, end_text_rect)
 
-        score_text = self.menu_font.render(f"Score : {self.game.player.score}", True, (255, 255, 255))
+        score_text = self.menu_font.render(f"Score : {self.game.game_manager.player.score}", True, (255, 255, 255))
         score_text_rect = score_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 2 + 5))
         self.game.gameSurface.blit(score_text, score_text_rect)
 
