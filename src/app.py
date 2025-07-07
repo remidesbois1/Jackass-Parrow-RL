@@ -148,7 +148,14 @@ class App:
 
         self.HUDfont = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 36)
 
-    def handleEvent(self, event):
+    def handleEvent(self, event : pygame.event.Event):
+        """
+        handle a single pygame Event passed in args like clicking button, closing the game etc..
+        also call sub handleEvent function like menu.handleEvent
+
+        Args:
+            event (pygame.event.Event): Event returned by the function pygame.event.get() during the actual loop tick
+        """
         if event.type == pygame.QUIT:
             self._running = False
 
@@ -172,7 +179,10 @@ class App:
                     else:
                         self.user_text += event.unicode
 
-    def onLoop(self):
+    def onLoop(self)->None:
+        """
+        manage all calculation and detection process on the current loop
+        """
         if self.activeMenu == "game":
             keys = pygame.key.get_pressed()
             self.Blocs.update()
@@ -240,7 +250,10 @@ class App:
 
         self.restart()
 
-    def render(self):
+    def render(self)->None:
+        """
+        manages all rendering processes on the current loop.
+        """
         if self.waveNumber == 10 and not self.redBg:
             self.background = pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha()
             self.gameSurface.blit(self.background, (0, 0))
@@ -266,10 +279,16 @@ class App:
             self.gameSurface.blit(score_text, (10, 10))
             self.gameSurface.blit(health_text, (10, 40))
 
-    def shutdown(self):
+    def shutdown(self)->None:
+        """
+        Close the game windows
+        """
         pygame.quit()
 
-    def execute(self):
+    def execute(self)->None:
+        """
+        Run the main loop of the game who is divided in 3 main functions (handleEvent, onLoop & render)
+        """
         self._running = True
 
         while self._running:
@@ -279,5 +298,4 @@ class App:
             self.render()
             pygame.display.flip()
             self.delta_time =  self.clock.tick(60) / 1000.0
-            #print(f"Delta Time: {self.deltaTime:.3f} seconds")
         self.shutdown()
