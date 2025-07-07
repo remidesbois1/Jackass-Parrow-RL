@@ -85,7 +85,6 @@ class App:
         pygame.mixer.music.load(str(MAIN_THEME_PATH))
         pygame.mixer.music.play(-1)
         self.sounds = Sound()
-        self.menu = Menu(self, self.ui_manager)
         self.gameSurface = pygame.display.set_mode(
             self.size, pygame.HWSURFACE | pygame.DOUBLEBUF
         )
@@ -95,6 +94,7 @@ class App:
         self.HUDfont = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 36)
         self.game_manager = GameManager(self.gameSurface)
         self.ui_manager = pygame_gui.UIManager(self.size, str(PROJECT_ROOT / "assets" / "themes" / "theme.json"))
+        self.menu = Menu(self, self.ui_manager)
 
     def handleEvent(self, event):
         self.ui_manager.process_events(event)

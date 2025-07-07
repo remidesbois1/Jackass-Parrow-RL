@@ -33,15 +33,32 @@
         },
         "colours":
         {
-            "normal_bg": "#FF0000",
-            "hovered_bg": "#CC0000",
             "normal_text": "#FFFFFF",
             "hovered_text": "#FFFFFF"
         },
+        "images":
+        {
+            "normal_image": {
+                "path": "assets/img/gui/button_normal.png"
+            },
+            "hovered_image": {
+                "path": "assets/img/gui/button_normal.png"
+            },
+            "selected_image": {
+                "path": "assets/img/gui/button_normal.png"
+            },
+            "disabled_image": {
+                "path": "assets/img/gui/button_normal.png"
+            }
+        },
         "misc":
         {
-            "shape": "rounded_rectangle",
-            "shape_corner_radius": "10",
+            "auto_scale_images": "1",
+            "state_transitions":
+            {
+                "normal_hovered": "0.3",
+                "hovered_normal": "0.3"
+            },
             "border_width": "1",
             "shadow_width": "15",
             "text_horiz_alignment": "center",
