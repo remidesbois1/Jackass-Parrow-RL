@@ -49,12 +49,14 @@ class App:
         self.background = None
         self.player = None
         self.clock = pygame.time.Clock()
+        self.delta_time = 1
+
         self.waveNumber = None
         self.idNiveau = 0
 
         self._running = True
         self.gameSurface = None
-        self.size = self.weight, self.height = 1280, 800
+        self.size = self.width, self.height = 1280, 800
         self.bullets = None
         self.enemies = None
         self.enemy_bullets = None
@@ -67,7 +69,7 @@ class App:
         self.game_over = False
         self.game_over_time = 0
 
-        self.input_box = pygame.Rect(self.weight // 2 - 100, self.height // 1.6, 200, 50)
+        self.input_box = pygame.Rect(self.width // 2 - 100, self.height // 1.6, 200, 50)
         self.input_box_color = (255, 255, 255)
         self.active = False
         self.user_text = ''
@@ -174,14 +176,14 @@ class App:
         if self.activeMenu == "game":
             keys = pygame.key.get_pressed()
             self.Blocs.update()
-            self.player.handleMove(keys, self.bullets)
+            self.player.handleMove(keys, self.bullets,self.delta_time)
             self.enemies.update(self.player, self.enemy_bullets, self.bullets)
-            self.enemy_bullets.update(self.weight, self.Blocs, self.player)
+            self.enemy_bullets.update(self.width, self.Blocs, self.delta_time)
 
             if self.fight_boss:
-                self.bullets.update(self.weight, self.Blocs.sprites() + self.boss.bouclier.sprites())
+                self.bullets.update(self.width, self.Blocs.sprites() + self.boss.bouclier.sprites(),self.delta_time)
             else:
-                self.bullets.update(self.weight, self.Blocs)
+                self.bullets.update(self.width, self.Blocs, self.delta_time)
 
             if self.player.health <= 0 and not self.game_over:
                 self.game_over = True
@@ -247,7 +249,7 @@ class App:
             self.menu.show_start_screen()
         else:
             self.gameSurface.blit(self.background, (0, 0))
-            self.player.update(self.gameSurface, self.Blocs, self.enemy_bullets)
+            self.player.update(self.gameSurface, self.Blocs, self.enemy_bullets,self.delta_time)
             self.Blocs.draw(self.gameSurface)
             self.bullets.draw(self.gameSurface)
             self.enemies.draw(self.gameSurface)
@@ -276,5 +278,6 @@ class App:
             self.onLoop()
             self.render()
             pygame.display.flip()
-            self.clock.tick(60)
+            self.delta_time =  self.clock.tick(60) / 1000.0
+            #print(f"Delta Time: {self.deltaTime:.3f} seconds")
         self.shutdown()
