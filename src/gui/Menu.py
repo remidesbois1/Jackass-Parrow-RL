@@ -12,6 +12,7 @@ DIMBO_FONT_PATH = PROJECT_ROOT / "assets" / "fonts" / "Dimbo Regular.ttf"
 TOM_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "tom.png"
 PLAYERHD_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "playerHD.png"
 SCORES_FILE_PATH = PROJECT_ROOT / "scores.json"
+MENU_BG_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "background" / "menu.png"
 
 class Menu:
     def __init__(self, game, ui_manager):
@@ -27,9 +28,11 @@ class Menu:
         self.lore_button = None
         self.leaderboard_button = None
         
-        # Windows
+        # Windows and their close buttons
         self.lore_window = None
         self.leaderboard_window = None
+        self.lore_close_button = None
+        self.leaderboard_close_button = None
         
         self.setup_start_menu()
 
@@ -83,12 +86,25 @@ class Menu:
             elif event.ui_element == self.leaderboard_button:
                 pygame.mixer.Sound(game.sounds.son_button).play()
                 self.show_leaderboard_window()
+            elif self.lore_close_button and event.ui_element == self.lore_close_button:
+                self.lore_window.kill()
+                self.lore_window = None
+                self.lore_close_button = None
+            elif self.leaderboard_close_button and event.ui_element == self.leaderboard_close_button:
+                self.leaderboard_window.kill()
+                self.leaderboard_window = None
+                self.leaderboard_close_button = None
+
 
         if event.type == pygame_gui.UI_WINDOW_CLOSE:
-            if event.ui_element == self.lore_window:
+            if self.lore_window and event.ui_element == self.lore_window:
+                self.lore_window.kill()
                 self.lore_window = None
-            if event.ui_element == self.leaderboard_window:
+                self.lore_close_button = None
+            if self.leaderboard_window and event.ui_element == self.leaderboard_window:
+                self.leaderboard_window.kill()
                 self.leaderboard_window = None
+                self.leaderboard_close_button = None
 
     def show_start_screen(self):
         self.game.activeMenu = "start"
@@ -146,13 +162,49 @@ class Menu:
 
             Aujourd'hui, menacé par Tom de l'Abbaye et ses chevaliers, Jackass-Parrow est prêt à tout pour défendre ceux qui l'ont recueilli.
             """
-            self.lore_window = pygame_gui.windows.UIMessageWindow(
-                rect=pygame.Rect((self.game.weight // 4, self.game.height // 4), (self.game.weight // 2, self.game.height // 2)),
-                html_message=lore_text,
+            window_rect = pygame.Rect((self.game.weight // 4, self.game.height // 6), (self.game.weight // 2, self.game.height // 1.5))
+
+            button_width, button_height, padding = 180, 70, 20
+            text_box_height = window_rect.height - button_height - padding * 2
+
+            self.lore_window = pygame_gui.elements.UIWindow(
+                rect=window_rect,
                 manager=self.ui_manager,
-                object_id='@lore_window',
-                window_title='Histoire'
+                window_display_title='',
+                object_id='@window',
+                resizable=False,
+                draggable=False
             )
+
+            background_image_surface = pygame.image.load(str(MENU_BG_IMAGE_PATH)).convert_alpha()
+
+            pygame_gui.elements.UIImage(
+                relative_rect=pygame.Rect((0, 0), self.lore_window.get_container().get_size()),
+                image_surface=background_image_surface,
+                manager=self.ui_manager,
+                container=self.lore_window
+            )
+
+
+            text_box = pygame_gui.elements.UITextBox(
+                html_text=lore_text,
+                relative_rect=pygame.Rect(padding, padding, window_rect.width - padding * 2, text_box_height),
+                manager=self.ui_manager,
+                container=self.lore_window,
+                object_id='@text_box_in_window'
+            )
+
+            button_x = (window_rect.width - button_width) // 2
+            button_y = text_box.get_relative_rect().bottom + padding
+
+            self.lore_close_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((button_x, button_y), (button_width, button_height)),
+                text='Fermer',
+                manager=self.ui_manager,
+                container=self.lore_window,
+                object_id='@menu_button'
+            )
+
 
     def show_leaderboard_window(self):
         if self.leaderboard_window is None:
