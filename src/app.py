@@ -168,6 +168,16 @@ class App:
             self.menu.show_start_screen()
         else:
             self.game_manager.render_game(self,self.delta_time)
+            self.player.update(self.gameSurface, self.Blocs, self.enemy_bullets, self.delta_time)
+            self.Blocs.draw(self.gameSurface)
+            self.bullets.draw(self.gameSurface)
+            self.enemies.draw(self.gameSurface)
+            self.enemy_bullets.draw(self.gameSurface)
+            if self.fight_boss:
+                self.boss.update(self.bullets, self.player, self.menu, self)
+
+        if self.game_over:
+            self.menu.show_end_screen()
 
         if self.activeMenu == "game":
             score_text = self.HUDfont.render(f"Score: {self.game_manager.player.score}", True, (255, 255, 255))

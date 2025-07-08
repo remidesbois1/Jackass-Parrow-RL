@@ -44,7 +44,7 @@ class Menu:
     def setup_start_menu(self):
         button_width = 220
         button_height = 80
-        x_pos = self.game.weight // 2 - button_width // 2
+        x_pos = self.game.width // 2 - button_width // 2
         
         self.start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2), (button_width, button_height)),
                                                             text='Lancer',
@@ -162,7 +162,7 @@ class Menu:
 
             Aujourd'hui, menacé par Tom de l'Abbaye et ses chevaliers, Jackass-Parrow est prêt à tout pour défendre ceux qui l'ont recueilli.
             """
-            window_rect = pygame.Rect((self.game.weight // 4, self.game.height // 6), (self.game.weight // 2, self.game.height // 1.5))
+            window_rect = pygame.Rect((self.game.width // 4, self.game.height // 6), (self.game.width // 2, self.game.height // 1.5))
 
             button_width, button_height, padding = 180, 70, 20
             text_box_height = window_rect.height - button_height - padding * 2
@@ -205,7 +205,6 @@ class Menu:
                 object_id='@menu_button'
             )
 
-
     def show_leaderboard_window(self):
         if self.leaderboard_window is None:
             try:
@@ -214,126 +213,52 @@ class Menu:
             except FileNotFoundError:
                 scores = []
 
-        boss_text = self.button_font.render("Mode Boss", True, (255, 255, 255))
-        self.game.boss_button_rect = boss_text.get_rect()
-        self.game.boss_button_rect.width += 10 * 2
-        self.game.boss_button_rect.height += 10 * 2
-        self.game.boss_button_rect.center = (self.game.width // 2, self.game.height // 1.22)
+            scores = sorted(scores, key=lambda x: x["score"], reverse=True)
+            leaderboard_text = ""
+            for i, score in enumerate(scores[:10]):
+                leaderboard_text += f"{i+1}. {score['pseudo']} - {score['score']}<br>"
 
-        pygame.draw.rect(self.game.gameSurface, boss_button_color, self.game.boss_button_rect, border_radius=10)
-        boss_text_rect = boss_text.get_rect(center=self.game.boss_button_rect.center)
-        self.game.gameSurface.blit(boss_text, boss_text_rect)
+            window_rect = pygame.Rect((self.game.width // 4, self.game.height // 6), (self.game.width // 2, self.game.height // 1.5))
 
-        # bouton lore
-        lore_text = self.button_font.render("Histoire", True, (255, 255, 255))
-        self.game.lore_button_rect = lore_text.get_rect(center=(self.game.width // 2, self.game.height // 1.4))
-        pygame.draw.rect(self.game.gameSurface, (139, 69, 19), self.game.lore_button_rect,
-                         border_radius=10)
-        self.game.gameSurface.blit(lore_text, self.game.lore_button_rect)
+            button_width, button_height, padding = 180, 70, 20
+            text_box_height = window_rect.height - button_height - padding * 2
 
-        if self.game.show_lore:
-            self.show_lore_menu()
+            self.leaderboard_window = pygame_gui.elements.UIWindow(
+                rect=window_rect,
+                manager=self.ui_manager,
+                window_display_title='',
+                object_id='@window',
+                resizable=False,
+                draggable=False
+            )
 
-            # bouton classement
-        if self.game.show_leaderboard_button:
-            leaderboard_text = self.button_font.render("Classement", True, (255, 255, 255))
-            self.game.leaderboard_button_rect = leaderboard_text.get_rect(
-                center=(self.game.width // 2, self.game.height // 1.6))
-            pygame.draw.rect(self.game.gameSurface, (139, 69, 19), self.game.leaderboard_button_rect,
-                             border_radius=10)
-            self.game.gameSurface.blit(leaderboard_text, self.game.leaderboard_button_rect)
+            background_image_surface = pygame.image.load(str(MENU_BG_IMAGE_PATH)).convert_alpha()
 
-        if self.game.show_leaderboard:
-            self.show_leaderboard_screen()
+            pygame_gui.elements.UIImage(
+                relative_rect=pygame.Rect((0, 0), self.leaderboard_window.get_container().get_size()),
+                image_surface=background_image_surface,
+                manager=self.ui_manager,
+                container=self.leaderboard_window
+            )
 
+            text_box = pygame_gui.elements.UITextBox(
+                html_text=leaderboard_text,
+                relative_rect=pygame.Rect(padding, padding, window_rect.width - padding * 2, text_box_height),
+                manager=self.ui_manager,
+                container=self.leaderboard_window,
+                object_id='@text_box_in_window'
+            )
+            
+            button_x = (window_rect.width - button_width) // 2
+            button_y = text_box.get_relative_rect().bottom + padding
 
-
-    def show_lore_menu(self):
-        self.game.activeMenu = "lore"
-
-
-        lore_surface = pygame.Surface((self.game.width // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
-        lore_surface.fill((0, 0, 0, 220))
-        lore_rect = lore_surface.get_rect(center=(self.game.width // 2, self.game.height // 2))
-        self.game.gameSurface.blit(lore_surface, lore_rect)
-
-        title_text = self.menu_font.render("Histoire", True, (255, 255, 255))
-        title_rect = title_text.get_rect(center=(self.game.width // 2, self.game.height // 5))
-        self.game.gameSurface.blit(title_text, title_rect)
-
-        lore_content = """
-                Quand il était jeune, Jackass-Parrow n'était pas le pirate le plus agile du navire.
-                C'est pour cela que ses parents lui ont greffé un canon scié sur l'arrière-train en guise de cadeau d'anniversaire.
-                Malheureusement, celui-ci fut exclu de sa fratrie lorsqu'il tira accidentellement dans la tête de son père en voulant s'étirer.
-                Jackass-Parrow passa donc le reste de son enfance dans une jungle, élevé par une tribu indigène.
-
-                Aujourd'hui, menacé par Tom de l'Abbaye et ses chevaliers, Jackass-Parrow est prêt à tout pour défendre ceux qui l'ont recueilli.
-                """
-
-        line_height = 40
-        x_pos = lore_rect.left + 50
-        y_pos = lore_rect.top + 100
-        max_width = lore_rect.width - 100
-
-        wrapped_lines = self.wrap_text(lore_content, self.leaderboard_font, max_width)
-
-        for line in wrapped_lines:
-            text_surface = self.lore_font.render(line, True, (255, 255, 255))
-            text_rect = text_surface.get_rect(topleft=(x_pos, y_pos))
-            self.game.gameSurface.blit(text_surface, text_rect)
-            y_pos += line_height
-
-        close_text = self.button_font.render("Fermer", True, (255, 255, 255))
-        self.game.close_lore_button_rect = close_text.get_rect(center=(self.game.width // 2, self.game.height // 1.2))
-        pygame.draw.rect(self.game.gameSurface, (180, 69, 40), self.game.close_lore_button_rect,
-                         border_radius=10)
-        self.game.gameSurface.blit(close_text, self.game.close_lore_button_rect)
-
-    def wrap_text(self, text, font, max_width):
-        lines = []
-        words = text.split()
-
-        while words:
-            line = ""
-            while words and font.size(line + words[0])[0] <= max_width:
-                line += (words.pop(0) + " ")
-            lines.append(line)
-
-        return lines
-
-
-    def show_leaderboard_screen(self):
-        self.game.activeMenu = "leaderboard"
-        leaderboard_surface = pygame.Surface((self.game.width // 1.5, self.game.height // 1.5), pygame.SRCALPHA)
-        leaderboard_surface.fill((139, 69, 19, 220))
-        leaderboard_rect = leaderboard_surface.get_rect(center=(self.game.width // 2, self.game.height // 2))
-        self.game.gameSurface.blit(leaderboard_surface, leaderboard_rect)
-
-        title_text = self.menu_font.render("Classement", True, (255, 255, 255))
-        title_rect = title_text.get_rect(center=(self.game.width // 2, self.game.height // 4))
-        self.game.gameSurface.blit(title_text, title_rect)
-
-        try:
-            with open("scores.json", "r") as f:
-                scores = json.load(f)
-        except FileNotFoundError:
-            scores = []
-
-        scores.sort(key=lambda x: x["score"], reverse=True)
-
-        # 10 meilleurs scores
-        y_offset = self.game.height // 3
-        for i, score in enumerate(scores[:10]):
-            score_text = self.leaderboard_font.render(f"{i + 1}. {score['pseudo']} - {score['score']}", True,
-                                                      (255, 255, 255))
-            score_rect = score_text.get_rect(center=(self.game.width // 2, y_offset))
-            self.game.gameSurface.blit(score_text, score_rect)
-            y_offset += 40
-
-        close_text = self.button_font.render("Fermer", True, (255, 255, 255))
-        self.game.close_button_rect = close_text.get_rect(center=(self.game.width // 1.35, self.game.height // 4))
-        pygame.draw.rect(self.game.gameSurface, (180, 69, 40), self.game.close_button_rect, border_radius=10)  # Couleur marron
-        self.game.gameSurface.blit(close_text, self.game.close_button_rect)
+            self.leaderboard_close_button = pygame_gui.elements.UIButton(
+                relative_rect=pygame.Rect((button_x, button_y), (button_width, button_height)),
+                text='Fermer',
+                manager=self.ui_manager,
+                container=self.leaderboard_window,
+                object_id='@menu_button'
+            )
 
     def show_end_screen(self):
         self.game.activeMenu = "end"
@@ -460,17 +385,17 @@ class Menu:
     # pareil à réecrire
     def show_end_screen(self):
         self.game.activeMenu = "end"
-        frame_surface = pygame.Surface((self.game.weight // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
+        frame_surface = pygame.Surface((self.game.width // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
         frame_surface.fill((0, 0, 0, 164))
-        frame_rect = frame_surface.get_rect(center=(self.game.weight // 2, self.game.height // 2))
+        frame_rect = frame_surface.get_rect(center=(self.game.width // 2, self.game.height // 2))
         self.game.gameSurface.blit(frame_surface, frame_rect)
 
         end_text = self.menu_font.render("Game Over", True, (255, 255, 255))
-        end_text_rect = end_text.get_rect(center=(self.game.weight // 2 + 5, self.game.height // 3 + 5))
+        end_text_rect = end_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 3 + 5))
         self.game.gameSurface.blit(end_text, end_text_rect)
 
         score_text = self.menu_font.render(f"Score : {self.game.player.score}", True, (255, 255, 255))
-        score_text_rect = score_text.get_rect(center=(self.game.weight // 2 + 5, self.game.height // 2 + 5))
+        score_text_rect = score_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 2 + 5))
         self.game.gameSurface.blit(score_text, score_text_rect)
 
         # zone saisie pseudo
@@ -483,7 +408,7 @@ class Menu:
 
         # bouton enregistrer
         save_text = self.button_font.render("Enregistrer", True, (255, 255, 255))
-        self.game.save_button_rect = save_text.get_rect(center=(self.game.weight // 2, self.game.height // 1.3))
+        self.game.save_button_rect = save_text.get_rect(center=(self.game.width // 2, self.game.height // 1.3))
 
         # changement de couleur
         mouse_pos = pygame.mouse.get_pos()
