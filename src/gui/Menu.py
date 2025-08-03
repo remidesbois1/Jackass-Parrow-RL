@@ -30,7 +30,7 @@ class Menu:
                 game.show_start_menu = False
                 game.game_manager.boss_mode = True
                 pygame.mixer.Sound(game.sounds.son_button).play()
-                game.start_boss_mode()
+                game.game_manager.start_boss_mode()
                 game.activeMenu = "game"
             if not game.show_lore and not game.show_leaderboard and game.leaderboard_button_rect.collidepoint(event.pos):
                 pygame.mixer.Sound(game.sounds.son_button).play()

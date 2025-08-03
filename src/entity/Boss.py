@@ -58,33 +58,33 @@ class Boss(pygame.sprite.Sprite):
                 self.bouclier.add(Block(15,12-(i*4),1,3))
         self.bouclier.draw(self.scene)
 
-    def update(self, player_bullets, player, menu, game):
+    def update(self, player_bullets, player, menu, app:"App"):
         self.bouclier.update()
 
         elapsed_time = time.time() - self.start_timer
 
         self.scene.blit(self.image, self.rect)
-
+    
         if elapsed_time <= 5:
             menu.show_boss_intro()
             return
         else:
-            game.activeMenu = 'game'
+            app.activeMenu = 'game'
 
         if elapsed_time > 5 and not hasattr(self, "intro_finished"):
             self.intro_finished = True
 
         if elapsed_time > 5:
             if self.health <= 0:
-                if game.fight_boss:
+                if app.game_manager.fight_boss:
                     if self.deathTime == 0:
                         self.bullets.empty()
                         self.deathTime = time.time()
                     menu.show_boss_win()
                     if time.time() - self.deathTime > 5:
-                        game.fight_boss = False
-                        game.Blocs.empty()
-                        game.loadTableau()
+                        app.game_manager.fight_boss = False
+                        app.game_manager.Blocs.empty()
+                        app.game_manager.loadTableau()
 
                 if self.deathTime == 0:
                     self.deathTime = time.time()
@@ -96,7 +96,7 @@ class Boss(pygame.sprite.Sprite):
                     self.die = True
                     pygame.mixer.music.load(str(MAIN_THEME_PATH))
                     pygame.mixer.music.play(-1)
-                    game.boss_Killed = True
+                    app.game_manager.boss_Killed = True
                     if not hasattr(self, "victory_shown"):
                         self.victory_shown = True
 

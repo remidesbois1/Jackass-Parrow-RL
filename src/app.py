@@ -69,7 +69,6 @@ class App:
 
  
         self.boss_button_rect = pygame.Rect(0, 0, 0, 0)
-        self.redBg = False
         
         self.game_manager = None
 
@@ -88,7 +87,6 @@ class App:
         )
         self._running = True
         self.background = pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha()
-        self.redBg = False
 
         self.HUDfont = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 36)
         self.game_manager = GameManager(self.gameSurface)
@@ -131,7 +129,7 @@ class App:
         if self.activeMenu == "game":
             keys = pygame.key.get_pressed()
             
-            self.game_manager.onLoop(self.delta_time,keys)
+            self.game_manager.onLoop(self.delta_time,keys,self)
 
             if self.game_manager.game_over and not self.game_manager.score_saved:
                 self.menu.show_end_screen()
@@ -164,19 +162,11 @@ class App:
         """
         manages all rendering processes on the current loop.
         """
-        """
-        if self.waveNumber == 10 and not self.redBg:
-            self.background = pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha()
-            self.gameSurface.blit(self.background, (0, 0))
-            self.redBg = True
-        """
-            
+
         if self.show_start_menu:
             self.menu.show_start_screen()
         else:
             self.game_manager.renderGame(self)
-            
-        
 
         if self.activeMenu == "game":
             score_text = self.HUDfont.render(f"Score: {self.game_manager.player.score}", True, (255, 255, 255))

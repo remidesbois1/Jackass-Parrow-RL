@@ -13,6 +13,10 @@ from src.entity.EnemyGroup import EnemyGroup
 from src.system.Sound import Sound
 from pygame.surface import Surface
 from pygame.key import ScancodeWrapper
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.app import App
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BACKGROUND_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "background" / "fondGameJam.png"
@@ -45,7 +49,7 @@ class GameManager:
         self.tom = None
         
         
-    def onLoop(self,delta_time:float, keys: ScancodeWrapper):
+    def onLoop(self,delta_time:float, keys: ScancodeWrapper,app:"App"):
         WIDTH = 1280
         self.Blocs.update()
         self.player.handleMove(keys, self.bullets,delta_time)
@@ -62,7 +66,7 @@ class GameManager:
                 self.game_over_time = pygame.time.get_ticks()
 
         if self.boss_mode and self.boss.die:
-            self.restart()
+            app.restart()
 
         if self.waveNumber == 8 and self.boss_Killed:
             self.waveNumber += 1
@@ -80,7 +84,7 @@ class GameManager:
             else:
                 self.loadTableau()
     
-    def loadTableau(self, id=None):
+    def loadTableau(self, id: int =None ):
         self.enemy_bullets.empty()
         if id == 1000:
             self.idNiveau = 1000
@@ -101,7 +105,6 @@ class GameManager:
         self.boss_Killed = False
         self.game_over = False
         self.game_over_time = 0
-        self.redBg = False
         
         if self.boss is not None:
             self.boss.kill()
@@ -135,23 +138,22 @@ class GameManager:
 
         self.loadTableau(1000)
     
-    def renderGameBackground(self,app:"App"):
-        if self.waveNumber == 10 and not app.redBg:
-            app.background = pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha()
+    def renderGameBackground(self):
+        if self.waveNumber == 10:
+            self.background = pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha()
             self.game_surface.blit(self.background, (0, 0))
-            app.redBg = True
         else:
             self.game_surface.blit(self.background, (0, 0))
     
     def renderGame(self,app:"App"):
         """AJOUTER DOCSTRINGEEEEEE"""
-        self.renderGameBackground(app)
+        self.renderGameBackground()
         self.player.update(self.game_surface, self.Blocs, self.enemy_bullets,app.delta_time)
         self.Blocs.draw(self.game_surface)
         self.bullets.draw(self.game_surface)
         self.enemies.draw(self.game_surface)
         self.enemy_bullets.draw(self.game_surface)
         if self.fight_boss:
-            self.boss.update(self.bullets, self.player, self.menu, self)
+            self.boss.update(self.bullets, self.player, app.menu, app)
         if self.game_over:
             app.menu.show_end_screen()
