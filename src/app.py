@@ -166,7 +166,7 @@ class App:
         if self.show_start_menu:
             self.menu.show_start_screen()
         else:
-            self.game_manager.renderGame(self)
+            self.game_manager.renderGame(self,self.delta_time)
 
         if self.activeMenu == "game":
             score_text = self.HUDfont.render(f"Score: {self.game_manager.player.score}", True, (255, 255, 255))

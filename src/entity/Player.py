@@ -35,7 +35,7 @@ class Player(pygame.sprite.Sprite):
         self.sounds = Sound()
 
         self.walk1 = pygame.image.load(str(PLAYER_WALK1_PATH)).convert_alpha()
-        self.walk2 = pygame.image.load(str(PLAYER_WALK2_PATH)).convert_alpha()  # Je suppose que tu voulais playerWalk2, sinon double charge playerWalk
+        self.walk2 = pygame.image.load(str(PLAYER_WALK2_PATH)).convert_alpha()  
         self.image = pygame.image.load(str(PLAYER_IMG_PATH)).convert_alpha()
         self.shield_image = pygame.image.load(str(PLAYER_SHIELD_PATH)).convert_alpha()
         self.player_image = self.image.copy()

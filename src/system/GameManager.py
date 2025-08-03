@@ -1,6 +1,7 @@
 import pygame
 import json
 from pathlib import Path
+import time
 from random import randint
 from src.block.Block import Block
 from src.block.BlockGroup import BlockGroup
@@ -27,6 +28,10 @@ class GameManager:
         # game system
         self.levelCollection = None
         self.game_surface = game_surface
+        self.background_list = [
+                            pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha(),
+                            pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha() 
+                            ]
     
 
         # game state
@@ -65,7 +70,7 @@ class GameManager:
                 self.game_over = True
                 self.game_over_time = pygame.time.get_ticks()
 
-        if self.boss_mode and self.boss.die:
+        if self.boss_mode and self.boss.health <= 0 and self.boss.outroFinished:
             app.restart()
 
         if self.waveNumber == 8 and self.boss_Killed:
@@ -114,7 +119,6 @@ class GameManager:
         self.enemy_bullets = pygame.sprite.Group()
 
         self.player = Player()
-        self.background = pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha()
         self.Blocs = BlockGroup(self.game_surface, self.enemies)
         self.levelCollection = LevelCollection(self.Blocs)
         
@@ -132,7 +136,6 @@ class GameManager:
         self.enemies = EnemyGroup(self.game_surface)
 
         self.player = Player()
-        self.background = pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha()
         self.Blocs = BlockGroup(self.game_surface, self.enemies)
         self.levelCollection = LevelCollection(self.Blocs)
 
@@ -140,15 +143,14 @@ class GameManager:
     
     def renderGameBackground(self):
         if self.waveNumber == 10:
-            self.background = pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha()
-            self.game_surface.blit(self.background, (0, 0))
+            self.game_surface.blit(self.background_list[1], (0, 0))
         else:
-            self.game_surface.blit(self.background, (0, 0))
+            self.game_surface.blit(self.background_list[0], (0, 0))
     
-    def renderGame(self,app:"App"):
+    def renderGame(self,app:"App",delta_time:float):
         """AJOUTER DOCSTRINGEEEEEE"""
         self.renderGameBackground()
-        self.player.update(self.game_surface, self.Blocs, self.enemy_bullets,app.delta_time)
+        self.player.update(self.game_surface, self.Blocs, self.enemy_bullets,delta_time)
         self.Blocs.draw(self.game_surface)
         self.bullets.draw(self.game_surface)
         self.enemies.draw(self.game_surface)
