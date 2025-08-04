@@ -25,7 +25,7 @@ BACKGROUND_RED_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "background" / "fo
 
 class GameManager:
     def __init__(self,game_surface:Surface):
-        # game system
+        # game systemR
         self.levelCollection = None
         self.game_surface = game_surface
         self.background_list = [
@@ -70,8 +70,17 @@ class GameManager:
                 self.game_over = True
                 self.game_over_time = pygame.time.get_ticks()
 
-        if self.boss_mode and self.boss.health <= 0 and self.boss.outroFinished:
-            app.restart()
+        if self.fight_boss and self.boss.health <= 0 and self.boss.outroFinished:
+            if self.boss_mode:
+                app.restart()
+                self.boss.outroFinished = False
+            else:
+                self.fight_boss = False
+                self.Blocs.empty()
+                self.loadTableau()
+                self.boss.outroFinished = False
+
+
 
         if self.waveNumber == 8 and self.boss_Killed:
             self.waveNumber += 1
@@ -142,7 +151,7 @@ class GameManager:
         self.loadTableau(1000)
     
     def renderGameBackground(self):
-        if self.waveNumber == 10:
+        if self.waveNumber >= 10:
             self.game_surface.blit(self.background_list[1], (0, 0))
         else:
             self.game_surface.blit(self.background_list[0], (0, 0))

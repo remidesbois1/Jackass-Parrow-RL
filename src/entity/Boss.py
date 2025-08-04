@@ -30,9 +30,9 @@ class Boss(pygame.sprite.Sprite):
         self.game_surface = game_surface
 
         # Surface
-        self.TEXTURE_TOM = pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)).convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
-        self.TEXTURE_TOM_DAMAGE = pygame.transform.scale(pygame.image.load(str(TOM_DAMAGE_IMAGE_PATH)).convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
-        self.image = pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)).convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
+        self.TEXTURE_TOM = pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)),(self.SIZE[0]*2,self.SIZE[1]*2)).convert_alpha()
+        self.TEXTURE_TOM_DAMAGE = pygame.transform.scale(pygame.image.load(str(TOM_DAMAGE_IMAGE_PATH)),(self.SIZE[0]*2,self.SIZE[1]*2)).convert_alpha()
+        self.image = pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)),(self.SIZE[0]*2,self.SIZE[1]*2)).convert_alpha()
         self.rect = self.image.get_rect(x=self.X, y=self.Y)
 
         self.health = 10
@@ -92,6 +92,7 @@ class Boss(pygame.sprite.Sprite):
                     self.deathTime = time.time()
                 menu.show_boss_win()
                 self.attackSpeed = 999999
+                self.image.fill((0,0,0,0))
                 self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
 
                 if time.time() - self.deathTime > 5:
@@ -115,15 +116,16 @@ class Boss(pygame.sprite.Sprite):
                         # colère
                         if self.health <= 3:
                             self.attackSpeed = 700
-    
+                self.image.fill((0,0,0,0))
                 self.image.blit(self.TEXTURE_TOM, (0, 0))
                 self.image.set_alpha(255)
 
             #si evasif
             else:
+                self.image.fill((0,0,0,0))
                 self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
                 if int(time.time() * 1000) % 200 <= 100:
                     self.image.set_alpha(200)
                 else:
                     self.image.set_alpha(150)
-
+                
