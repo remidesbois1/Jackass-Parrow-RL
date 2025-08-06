@@ -1,5 +1,6 @@
 from src.block.BlockGroup import BlockGroup
 from src.block.Block import Block
+from src.system.GameConfig import WorldType
 
 class LevelCollection:
     #si il y a  5 élements alors le block est spawnable
@@ -146,26 +147,14 @@ class LevelCollection:
         self.blocs = blockGroup
         self.playerSpawn = (0,0)
 
-    def load(self, levelId):
-        if levelId == 1000: # boss
-            lstBloc = [
-                (1,1),
-                (-1,3, 2, 1, False),
-                (-1,7,4,1, False),
-                (-1, 11, 6, 1, False),
-                (-1, 15, 8, 1, False),
-                (17,14,6,2, False),
-                (17, 0, 6, 3),
-                (17, 3, 1, 11, False, True)
-            ]
-        else:
-            lstBloc = self.LEVELS[levelId-1]
+    def build_tableau(self,lstBloc: list):
         #sol
         self.blocs.add(Block(-1,16,26,1))
         #mur
         self.blocs.add(Block(-2,-8,1,28))
         self.blocs.add(Block(25, -8, 1, 28))
         
+        #bloc contenus dans le paramètre lstBloc
         for bloc in lstBloc:
             if len(bloc) == 2:
                 self.playerSpawn = (bloc[0]*50,bloc[1]*50)
@@ -179,3 +168,22 @@ class LevelCollection:
                 else:
                     transparent = bloc[5]
                 self.blocs.add(Block(x=bloc[0],y=bloc[1],width= bloc[2],height= bloc[3],spawnable=spawn, transparent=transparent))
+
+    def load_boss(self, boss_idex: WorldType):
+        if boss_idex == 1:
+            lstBloc = [
+                (1,1),
+                (-1,3, 2, 1, False),
+                (-1,7,4,1, False),
+                (-1, 11, 6, 1, False),
+                (-1, 15, 8, 1, False),
+                (17,14,6,2, False),
+                (17, 0, 6, 3),
+                (17, 3, 1, 11, False, True)
+            ]
+        self.build_tableau(lstBloc)
+
+
+    def load(self, levelId):
+        lstBloc = self.LEVELS[levelId-1]
+        self.build_tableau(lstBloc)

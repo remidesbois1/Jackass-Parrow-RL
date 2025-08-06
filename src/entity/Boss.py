@@ -104,7 +104,6 @@ class Boss(pygame.sprite.Sprite):
                 if time.time() - self.deathTime > 5:
                     pygame.mixer.music.load(str(MAIN_THEME_PATH))
                     pygame.mixer.music.play(-1)
-                    app.game_manager.boss_Killed = True
 
             if time.time() - self.timeLastBullet > self.attackSpeed / 1000.0:
                 self.timeLastBullet = time.time()

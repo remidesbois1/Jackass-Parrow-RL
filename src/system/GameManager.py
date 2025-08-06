@@ -1,20 +1,15 @@
 import pygame
-import json
 from pathlib import Path
-import time
-from random import randint
-from src.block.Block import Block
 from src.block.BlockGroup import BlockGroup
 from src.entity.Boss import Boss
-from src.entity.Enemy import Enemy
-from src.gui.Menu import Menu
 from src.entity.Player import Player
 from src.system.LevelCollection import LevelCollection
 from src.entity.EnemyGroup import EnemyGroup
-from src.system.Sound import Sound
 from pygame.surface import Surface
 from pygame.key import ScancodeWrapper
 from typing import TYPE_CHECKING
+from src.system.WorldManager import WorldManager
+from src.system.GameConfig import DIFICULTY, WorldType
 
 if TYPE_CHECKING:
     from src.app import App
@@ -22,6 +17,8 @@ if TYPE_CHECKING:
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BACKGROUND_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "background" / "fondGameJam.png"
 BACKGROUND_RED_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "background" / "fondGameJamRed.png"
+
+
 
 class GameManager:
     def __init__(self,game_surface:Surface):
@@ -32,7 +29,7 @@ class GameManager:
                             pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha(),
                             pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha() 
                             ]
-    
+        self.worldManager = None
 
         # game state
         self.waveNumber = None
@@ -40,7 +37,6 @@ class GameManager:
         self.game_over = False
         self.game_over_time = 0
         self.fight_boss = False
-        self.boss_Killed = None
         self.boss_mode = False #Séparer Game Manager et BossModeManager
         self.score_saved = False
         
@@ -61,15 +57,18 @@ class GameManager:
         self.enemies.update(self.player, self.enemy_bullets, self.bullets)
         self.enemy_bullets.update(WIDTH, self.Blocs, delta_time)
         
+        # si combat de boss on ajoute les boucliers du boss aux blocs
         if self.fight_boss:
                 self.bullets.update(WIDTH, self.Blocs.sprites() + self.boss.bouclier.sprites(),delta_time)
         else:
             self.bullets.update(WIDTH, self.Blocs, delta_time)
         
+        #check player mort
         if self.player.health <= 0 and not self.game_over:
                 self.game_over = True
                 self.game_over_time = pygame.time.get_ticks()
 
+        # check boss mort
         if self.fight_boss and self.boss.health <= 0 and self.boss.outroFinished:
             if self.boss_mode:
                 app.restart()
@@ -79,18 +78,19 @@ class GameManager:
                 self.Blocs.empty()
                 self.loadTableau()
                 self.boss.outroFinished = False
+        
 
-
-
-        if self.waveNumber == 8 and self.boss_Killed:
-            self.waveNumber += 1
+        # passage au monde suivant quand le bosse meurt (outro terminé + pv 0 + en mode de jeu normal)
+        if self.boss is not None and self.boss.outroFinished and self.boss.health <= 0 and not self.boss_mode:
+            self.worldManager.next_world()
             self.loadTableau()
 
-        if self.enemies.nbAlive() == 0 and not self.boss_mode and not self.idNiveau == 1000:
+        # si tous les ennemis sont morts on passe au niveau suivant
+        if self.enemies.nbAlive() == 0 and not self.boss_mode:
             self.enemies.empty()
             self.Blocs.empty()
-            if self.waveNumber == 8:
-                self.loadTableau(1000)
+            if self.worldManager.current_world.current_level >= self.worldManager.current_world.nb_levels:
+                self.load_tableau_boss()
                 self.player.speed = 0
                 self.player.knockback = 0
                 self.boss = Boss(self.game_surface, self.enemy_bullets)
@@ -98,25 +98,26 @@ class GameManager:
             else:
                 self.loadTableau()
     
-    def loadTableau(self, id: int =None ):
+    def loadTableau(self):
         self.enemy_bullets.empty()
-        if id == 1000:
-            self.idNiveau = 1000
-        else:
-            if self.waveNumber > 8:
-                self.idNiveau = randint(5, 10)
-            else:
-                self.idNiveau = randint(1, 5)
-        self.levelCollection.load(self.idNiveau)
+        idNiveau = self.worldManager.current_world.get_next_level_id()
+        self.levelCollection.load(idNiveau)
         self.player.rect.x, self.player.rect.y = self.levelCollection.playerSpawn
-        self.waveNumber += 1
         self.Blocs.spawn(self.waveNumber)
+    
+    def load_tableau_boss(self):
+        """ Charge le tableau du boss du monde, vide les groupes ennemis et les groupes blocs"""
+        self.enemy_bullets.empty()
+        self.levelCollection.load_boss(self.worldManager.current_world.monde_index)
+        self.player.rect.x, self.player.rect.y = self.levelCollection.playerSpawn
+        self.Blocs.spawn(self.waveNumber)
+
+
 
     def startGame(self):
         self.waveNumber = 0
         self.boss_mode = False
         self.fight_boss = False
-        self.boss_Killed = False
         self.game_over = False
         self.game_over_time = 0
         
@@ -130,9 +131,8 @@ class GameManager:
         self.player = Player()
         self.Blocs = BlockGroup(self.game_surface, self.enemies)
         self.levelCollection = LevelCollection(self.Blocs)
+        self.worldManager = WorldManager(DIFICULTY.OLD, self.levelCollection)
         
-        
-
         self.loadTableau()
 
     def start_boss_mode(self):
@@ -155,6 +155,8 @@ class GameManager:
             self.game_surface.blit(self.background_list[1], (0, 0))
         else:
             self.game_surface.blit(self.background_list[0], (0, 0))
+
+
     
     def renderGame(self,app:"App",delta_time:float):
         """AJOUTER DOCSTRINGEEEEEE"""
