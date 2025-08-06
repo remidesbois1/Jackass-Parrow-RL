@@ -22,7 +22,7 @@ class Boss(pygame.sprite.Sprite):
     START_TIME = pygame.time.get_ticks()
     
 
-    def __init__(self,game_surface,allBullets):
+    def __init__(self,game_surface,enemy_bullets):
         pygame.sprite.Sprite.__init__(self)
 
         self.start_timer = time.time()
@@ -43,7 +43,7 @@ class Boss(pygame.sprite.Sprite):
 
         self.index_hole = 0
         self.attackSpeed = 1000
-        self.bullets = allBullets
+        self.bullets = enemy_bullets
         self.timeLastBullet = 0
 
         self.bouclier = BlockGroup(self.game_surface,None)
@@ -64,12 +64,15 @@ class Boss(pygame.sprite.Sprite):
         self.bouclier.draw(self.game_surface)
 
     def update(self, player_bullets, player, menu, app:"App"):
-        self.bouclier.update()
 
-        elapsed_time = time.time() - self.start_timer
+        
 
         self.game_surface.blit(self.image, self.rect)
-    
+
+        self.bouclier.update()
+        
+        elapsed_time = time.time() - self.start_timer
+        # condition et action à déplacer dans la classe App
         if elapsed_time <= 5:
             menu.show_boss_intro()
             return
@@ -79,8 +82,11 @@ class Boss(pygame.sprite.Sprite):
 
         #si l'intro est terminée
         if elapsed_time > 5:
+            # si le boss est mort
             if self.health <= 0:
+                #si en combat de boss
                 if app.game_manager.fight_boss:
+                    # si deathTime n'a jamais été initialisé
                     if self.deathTime == 0:
                         self.bullets.empty()
                         self.deathTime = time.time()

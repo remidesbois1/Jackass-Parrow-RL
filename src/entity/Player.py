@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):
     MAX_FALL_SPEED = 900 
     JUMP_FORCE = 1210
     KNOCKBACK_FORCE = 1200
-    BULLET_DELAY = 200  # Délai entre les tirs en millisecondes 1sec
+    BULLET_DELAY = 1000  # Délai entre les tirs en millisecondes 1sec
 
     def __init__(self,x=200,y=200):
         pygame.sprite.Sprite.__init__(self)
@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 0
         self.onGround = False
         self.knockback = 0
-        self.health = 99
+        self.health = 3
         self.score = 0
 
         self.current_time = 150
@@ -95,8 +95,17 @@ class Player(pygame.sprite.Sprite):
                     self.last_bullet_time = self.current_time
                     pygame.mixer.Sound(self.sounds.son_tir).play()
                     return bullets
-
-
+            if keys[pygame.K_i] and keys[pygame.K_o] and keys[pygame.K_p]:
+                self.debug_shot(bullets)
+        
+    def debug_shot(self, bullets : pygame.sprite.Group):
+        if self.current_time - self.last_bullet_time > self.BULLET_DELAY:
+            for i in range (10,1200,20):
+                bullets.add(
+                    Bullet(10, i, 'Valerie chevalariass'),
+                    Bullet(1250, i, 'gauche')
+                            )
+        self.last_bullet_time = self.current_time
 
 
     def addScore(self, score):
