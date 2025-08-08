@@ -99,7 +99,7 @@ class Player(pygame.sprite.Sprite):
                 self.debug_shot(bullets)
         
     def debug_shot(self, bullets : pygame.sprite.Group):
-        if self.current_time - self.last_bullet_time > self.BULLET_DELAY:
+        if self.current_time - self.last_bullet_time > (self.BULLET_DELAY// 4):
             for i in range (10,1200,20):
                 bullets.add(
                     Bullet(10, i, 'Valerie chevalariass'),

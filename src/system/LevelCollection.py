@@ -169,8 +169,8 @@ class LevelCollection:
                     transparent = bloc[5]
                 self.blocs.add(Block(x=bloc[0],y=bloc[1],width= bloc[2],height= bloc[3],spawnable=spawn, transparent=transparent))
 
-    def load_boss(self, boss_idex: WorldType):
-        if boss_idex == 1:
+    def load_boss(self, world_idex: WorldType):
+        if world_idex == WorldType.MONDE_JUNGLE:
             lstBloc = [
                 (1,1),
                 (-1,3, 2, 1, False),
@@ -181,6 +181,8 @@ class LevelCollection:
                 (17, 0, 6, 3),
                 (17, 3, 1, 11, False, True)
             ]
+        else:
+            raise NotImplementedError(f"Aucun boss ne correspond au monde {WorldType(world_idex).name}")
         self.build_tableau(lstBloc)
 
 

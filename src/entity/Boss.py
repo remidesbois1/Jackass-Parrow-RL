@@ -46,7 +46,7 @@ class Boss(pygame.sprite.Sprite):
         self.bullets = enemy_bullets
         self.timeLastBullet = 0
 
-        self.bouclier = BlockGroup(self.game_surface,None)
+        self.bouclier = BlockGroup(self.game_surface)
         pygame.mixer.music.load(str(BOSS_THEME_PATH))
         pygame.mixer.music.play(-1)
 
@@ -79,6 +79,8 @@ class Boss(pygame.sprite.Sprite):
         else:
             app.activeMenu = 'game'
 
+        #print(f"Elapsed time: {elapsed_time:.2f} seconds")
+        #print(f"{time.time()} - {self.start_timer} = {time.time() - self.start_timer} ")
 
         #si l'intro est terminée
         if elapsed_time > 5:
