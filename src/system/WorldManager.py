@@ -20,16 +20,17 @@ class WorldManager:
     def set_current_world(self):
         world_id = worlds_config[self.__difficulty][self.__current_world_index]['monde']
         nb_levels = worlds_config[self.__difficulty][self.__current_world_index]['nb_level']
-        self.curent_world = World(self.level_collection, world_id, nb_levels)
-    
+        self.current_world = World(self.level_collection, world_id, nb_levels)
+        
     def get_current_world(self) -> World:
-        return self.curent_world
+        return self.current_world
     
     def next_world(self):
         # Si le monde actuel est le dernier du tableau, on recommence sur le premier monde de la difficulté
         if self.__current_world_index + 1 >= len(worlds_config[self.__difficulty]):
             self.__current_world_index = 0
+            #self.current_world.current_level = 0
         else:
             self.__current_world_index += 1
         self.set_current_world()
-        print(vars(self.current_world))
+        
