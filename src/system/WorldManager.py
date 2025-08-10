@@ -2,17 +2,18 @@ from pathlib import Path
 from enum import Enum
 from random import randint
 from src.system.GameConfig import WorldType
-from src.system.GameConfig import DIFICULTY
+from src.system.GameConfig import DIFFICULTY
 from src.system.GameConfig import worlds_config
 from src.system.world import World
 
 
 class WorldManager:
-    def __init__(self, difficulty: DIFICULTY,level_collection):
+    def __init__(self, difficulty: DIFFICULTY,level_collection):
         self.__difficulty = difficulty
         self.__current_world_index = 0
         self.level_collection = level_collection
         self.danger_offset = 0
+        self.last_level_id = -1
 
         self.set_current_world()
 
@@ -36,4 +37,7 @@ class WorldManager:
         else:
             self.__current_world_index += 1
         self.set_current_world()
-        
+    
+    def get_next_level_id(self) -> int:
+        self.last_level_id = self.current_world.get_next_level_id(self.last_level_id)
+        return self.last_level_id
