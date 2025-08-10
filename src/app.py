@@ -129,7 +129,7 @@ class App:
         if self.activeMenu == "game":
             keys = pygame.key.get_pressed()
             
-            self.game_manager.onLoop(self.delta_time,keys,self)
+            self.game_manager.on_loop(self.delta_time,keys,self)
 
             if self.game_manager.game_over and not self.game_manager.score_saved:
                 self.menu.show_end_screen()
@@ -139,7 +139,7 @@ class App:
     def restart(self):
         pygame.mixer.music.load(str(MAIN_THEME_PATH))
         pygame.mixer.music.play(-1)
-        self.game_manager.startGame()
+        self.game_manager.start_game()
         self.show_start_menu = True
  
         
@@ -166,7 +166,7 @@ class App:
         if self.show_start_menu:
             self.menu.show_start_screen()
         else:
-            self.game_manager.renderGame(self,self.delta_time)
+            self.game_manager.render_game(self,self.delta_time)
 
         if self.activeMenu == "game":
             score_text = self.HUDfont.render(f"Score: {self.game_manager.player.score}", True, (255, 255, 255))

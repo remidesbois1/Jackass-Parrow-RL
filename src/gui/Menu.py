@@ -23,7 +23,7 @@ class Menu:
         if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
             if game.start_button_rect.collidepoint(event.pos) and not game.show_leaderboard:
                 game.show_start_menu = False  # Démarre le jeu
-                game.game_manager.startGame()
+                game.game_manager.start_game()
                 pygame.mixer.Sound(game.sounds.son_button).play()
                 game.activeMenu = "game"
             elif game.boss_button_rect.collidepoint(event.pos) and not game.show_leaderboard and not game.activeMenu == "lore":

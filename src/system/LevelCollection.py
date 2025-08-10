@@ -134,15 +134,15 @@ class LevelCollection:
     ]
 
     def __init__(self, blockGroup: BlockGroup):
-        self.blocs = blockGroup
+        self.blocks = blockGroup
         self.playerSpawn = (0, 0)
 
     def build_tableau(self, lstBloc: list):
         # sol
-        self.blocs.add(Block(-1, 16, 26, 1))
+        self.blocks.add(Block(-1, 16, 26, 1))
         # mur
-        self.blocs.add(Block(-2, -8, 1, 28))
-        self.blocs.add(Block(25, -8, 1, 28))
+        self.blocks.add(Block(-2, -8, 1, 28))
+        self.blocks.add(Block(25, -8, 1, 28))
 
         # bloc contenus dans le paramètre lstBloc
         for bloc in lstBloc:
@@ -157,7 +157,7 @@ class LevelCollection:
                     transparent = False
                 else:
                     transparent = bloc[5]
-                self.blocs.add(
+                self.blocks.add(
                     Block(
                         x=bloc[0],
                         y=bloc[1],
@@ -168,8 +168,8 @@ class LevelCollection:
                     )
                 )
 
-    def load_boss(self, world_idex: WorldType):
-        if world_idex == WorldType.MONDE_JUNGLE:
+    def load_boss(self, world_index: WorldType):
+        if world_index == WorldType.MONDE_JUNGLE:
             lstBloc = [
                 (1, 1),
                 (-1, 3, 2, 1, False),
@@ -182,7 +182,7 @@ class LevelCollection:
             ]
         else:
             raise NotImplementedError(
-                f"Aucun boss ne correspond au monde {WorldType(world_idex).name}"
+                f"Aucun boss ne correspond au monde {WorldType(world_index).name}"
             )
         self.build_tableau(lstBloc)
 

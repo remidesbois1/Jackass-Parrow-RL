@@ -24,49 +24,49 @@ BACKGROUND_RED_IMAGE_PATH = (
 
 
 class GameManager:
+    
     def __init__(self, game_surface: Surface):
         # game systemR
-        self.levelCollection = None
+        self.level_collection = None
         self.game_surface = game_surface
         self.background_list = [
             pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha(),
             pygame.image.load(str(BACKGROUND_RED_IMAGE_PATH)).convert_alpha(),
         ]
-        self.worldManager = None
+        self.world_manager = None
 
         # game state
-
-        self.game_over = False
-        self.game_over_time = 0
-        self.fight_boss = False
-        self.boss_mode = False  # Séparer Game Manager et BossModeManager
-        self.score_saved = False
-
+        self.game_over : bool = False
+        self.game_over_time : int = 0
+        self.fight_boss : bool = False
+        self.boss_mode: bool = False  # Séparer Game Manager et BossModeManager
+        self.score_saved: bool = False
+        
         # entities
         self.player: Player = None
-        self.bullets = None
-        self.enemy_group = None
-        self.enemy_bullets = None
-        self.Blocs = None
+        self.bullets: pygame.sprite.Group = None
+        self.enemy_group : EnemyGroup = None
+        self.enemy_bullets : pygame.sprite.Group = None
+        self.blocks : BlockGroup = None
         self.boss = None
 
-    def loadTableau(self):
+    def load_tableau(self):
 
-        idNiveau = self.worldManager.get_next_level_id()
-        self.levelCollection.load(idNiveau)
+        idNiveau = self.world_manager.get_next_level_id()
+        self.level_collection.load(idNiveau)
         
         self.enemy_bullets.empty()
-        self.player.rect.x, self.player.rect.y = self.levelCollection.playerSpawn
-        self.Blocs.spawn(self.worldManager.current_world.danger_level, self.enemy_group)
+        self.player.rect.x, self.player.rect.y = self.level_collection.playerSpawn
+        self.blocks.spawn(self.world_manager.get_danger_level(), self.enemy_group)
 
     def load_tableau_boss(self):
         """Charge le tableau du boss du monde, vide les groupes ennemis et les groupes blocs"""
         self.enemy_bullets.empty()
-        self.levelCollection.load_boss(self.worldManager.current_world.monde_index)
-        self.player.rect.x, self.player.rect.y = self.levelCollection.playerSpawn
-        self.Blocs.spawn(self.worldManager.current_world.danger_level, self.enemy_group)
+        self.level_collection.load_boss(self.world_manager.get_current_world_type())
+        self.player.rect.x, self.player.rect.y = self.level_collection.playerSpawn
+        self.blocks.spawn(self.world_manager.get_danger_level(), self.enemy_group)
 
-    def startGame(self):
+    def start_game(self):
         self.boss_mode = False
         self.fight_boss = False
         self.game_over = False
@@ -80,11 +80,11 @@ class GameManager:
         self.enemy_bullets = pygame.sprite.Group()
 
         self.player = Player()
-        self.Blocs = BlockGroup(self.game_surface)
-        self.levelCollection = LevelCollection(self.Blocs)
-        self.worldManager = WorldManager(DIFFICULTY.OLD, self.levelCollection)
+        self.blocks = BlockGroup(self.game_surface)
+        self.level_collection = LevelCollection(self.blocks)
+        self.world_manager = WorldManager(DIFFICULTY.OLD, self.level_collection)
 
-        self.loadTableau()
+        self.load_tableau()
 
     def start_boss_mode(self):
         self.boss_mode = True
@@ -95,31 +95,31 @@ class GameManager:
         self.enemy_bullets = pygame.sprite.Group()
 
         self.player = Player()
-        self.Blocs = BlockGroup(self.game_surface)
+        self.blocks = BlockGroup(self.game_surface)
         self.boss = Boss(self.game_surface, self.enemy_bullets)
 
-        self.levelCollection = LevelCollection(self.Blocs)
-        self.worldManager = WorldManager(DIFFICULTY.OLD, self.levelCollection)
+        self.level_collection = LevelCollection(self.blocks)
+        self.world_manager = WorldManager(DIFFICULTY.OLD, self.level_collection)
 
         self.load_tableau_boss()
 
-    def renderGameBackground(self):
-        if self.worldManager.current_world.monde_index == WorldType.MONDE_VOLCAN:
+    def render_game_background(self):
+        if self.world_manager.get_current_world_type() == WorldType.MONDE_VOLCAN:
             self.game_surface.blit(self.background_list[1], (0, 0))
-        elif self.worldManager.current_world.monde_index == WorldType.MONDE_JUNGLE:
+        elif self.world_manager.get_current_world_type() == WorldType.MONDE_JUNGLE:
             self.game_surface.blit(self.background_list[0], (0, 0))
         else:
             raise NotImplementedError(
-                f"Le monde {self.worldManager.current_world.monde_index} n'a pas de fond de jeu défini."
+                f"Le monde {WorldType(self.world_manager.get_current_world_type()).name} n'a pas de fond de jeu défini."
             )
 
-    def renderGame(self, app: "App", delta_time: float):
+    def render_game(self, app: "App", delta_time: float):
         """AJOUTER DOCSTRING"""
-        self.renderGameBackground()
+        self.render_game_background()
         self.player.update(
-            self.game_surface, self.Blocs, self.enemy_bullets, delta_time
+            self.game_surface, self.blocks, self.enemy_bullets, delta_time
         )
-        self.Blocs.draw(self.game_surface)
+        self.blocks.draw(self.game_surface)
         self.bullets.draw(self.game_surface)
         self.enemy_group.draw(self.game_surface)
         self.enemy_bullets.draw(self.game_surface)
@@ -128,21 +128,21 @@ class GameManager:
         if self.game_over:
             app.menu.show_end_screen()
 
-    def onLoop(self, delta_time: float, keys: ScancodeWrapper, app: "App"):
+    def on_loop(self, delta_time: float, keys: ScancodeWrapper, app: "App"):
         WIDTH = 1280
 
-        self.Blocs.update()
+        self.blocks.update()
         self.player.handleMove(keys, self.bullets, delta_time)
         self.enemy_group.update(self.player, self.enemy_bullets, self.bullets)
-        self.enemy_bullets.update(WIDTH, self.Blocs, delta_time)
+        self.enemy_bullets.update(WIDTH, self.blocks, delta_time)
 
-        # si combat de boss on ajoute les boucliers du boss aux blocs
-        if self.fight_boss:
+        # si combat de boss contre tom on ajoute les boucliers du boss aux blocs
+        if self.fight_boss and self.world_manager.get_current_world_type == WorldType.MONDE_JUNGLE:
             self.bullets.update(
-                WIDTH, self.Blocs.sprites() + self.boss.bouclier.sprites(), delta_time
+                WIDTH, self.blocks.sprites() + self.boss.bouclier.sprites(), delta_time
             )
         else:
-            self.bullets.update(WIDTH, self.Blocs, delta_time)
+            self.bullets.update(WIDTH, self.blocks, delta_time)
 
         # check player mort
         if self.player.health <= 0 and not self.game_over:
@@ -156,22 +156,24 @@ class GameManager:
                 self.boss.outroFinished = False
             else:
                 self.fight_boss = False
-                self.Blocs.empty()
-                self.worldManager.next_world()
-                self.loadTableau()
+                self.blocks.empty()
+                self.world_manager.next_world()
+                self.load_tableau()
                 self.boss = None
 
-        # si tous les ennemis sont morts et que la propriété bosse est null on passe au niveau suivant
+        # si tous les ennemis sont morts et que la propriété boss est null on passe au niveau suivant
         if self.enemy_group.nbAlive() == 0 and self.boss is None and not self.boss_mode:
             self.enemy_group.empty()
-            self.Blocs.empty()
+            self.blocks.empty()
             if (
-                self.worldManager.current_world.current_level >= self.worldManager.current_world.nb_levels
+                self.world_manager.get_current_level() == self.world_manager.get_world_max_level()
             ):
                 self.load_tableau_boss()
                 self.player.speed = 0
                 self.player.knockback = 0
                 self.boss = Boss(self.game_surface, self.enemy_bullets)
                 self.fight_boss = True
+            elif self.world_manager.get_current_level() < self.world_manager.get_world_max_level():
+                self.load_tableau()
             else:
-                self.loadTableau()
+                raise ValueError("le niveau actuelle ne peut pas être supérieur au niveau max du monde")
