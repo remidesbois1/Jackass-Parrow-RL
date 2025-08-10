@@ -17,11 +17,12 @@ class BossType(Enum):
     PAYA = 3
 
 class World:
-    def __init__(self, level_collection,monde_index: WorldType,nb_levels: int):
+    def __init__(self, level_collection,monde_index: WorldType,nb_levels: int,danger_level=0):
         self.monde_index = monde_index
         self.level_collection = level_collection
         self.nb_levels = nb_levels
         self.current_level = 0
+        self.danger_level = danger_level
 
     def get_next_level_id(self)-> int:
         #à changer
@@ -30,6 +31,7 @@ class World:
         elif self.monde_index == WorldType.MONDE_JUNGLE:
             idNiveau = randint(1, 5)
         self.current_level += 1
+        self.danger_level += 1
         return idNiveau
         
     

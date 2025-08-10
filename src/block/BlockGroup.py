@@ -18,15 +18,15 @@ class BlockGroup(pygame.sprite.Group):
         return spawables
 
 
-    def spawn(self,level,enemyGroup):
+    def spawn(self,danger_level,enemyGroup):
         max = len(self.get_spawnable())
-        if level> 6:
+        if danger_level> 5:
             angry = True
         else:
             angry = False
-        if level > max:
-            level = max
-        for bloc in sample(self.get_spawnable(),level):
+        if danger_level > max:
+            danger_level = max
+        for bloc in sample(self.get_spawnable(),danger_level):
             x = randint(bloc.rect.x,(bloc.rect.x+bloc.rect.width)- (Enemy.SIZE[0]//2))
             y = bloc.rect.y - 90
 

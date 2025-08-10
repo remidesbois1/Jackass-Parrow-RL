@@ -99,14 +99,14 @@ class GameManager:
         idNiveau = self.worldManager.current_world.get_next_level_id()
         self.levelCollection.load(idNiveau)
         self.player.rect.x, self.player.rect.y = self.levelCollection.playerSpawn
-        self.Blocs.spawn(self.worldManager.current_world.current_level,self.enemy_group)
+        self.Blocs.spawn(self.worldManager.current_world.danger_level,self.enemy_group)
     
     def load_tableau_boss(self):
         """ Charge le tableau du boss du monde, vide les groupes ennemis et les groupes blocs"""
         self.enemy_bullets.empty()
         self.levelCollection.load_boss(self.worldManager.current_world.monde_index)
         self.player.rect.x, self.player.rect.y = self.levelCollection.playerSpawn
-        self.Blocs.spawn(self.worldManager.current_world.current_level,self.enemy_group)
+        self.Blocs.spawn(self.worldManager.current_world.danger_level,self.enemy_group)
 
 
 
