@@ -26,6 +26,8 @@ class Player(pygame.sprite.Sprite):
     MAX_FALL_SPEED = 900 
     JUMP_FORCE = 1210
     KNOCKBACK_FORCE = 1200
+    BULLET_DELAY = 1000  # Délai entre les tirs en millisecondes 1sec
+
     def __init__(self,x=200,y=200):
         pygame.sprite.Sprite.__init__(self)
         self.lastSpeed = 0
@@ -35,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.sounds = Sound()
 
         self.walk1 = pygame.image.load(str(PLAYER_WALK1_PATH)).convert_alpha()
-        self.walk2 = pygame.image.load(str(PLAYER_WALK2_PATH)).convert_alpha()  # Je suppose que tu voulais playerWalk2, sinon double charge playerWalk
+        self.walk2 = pygame.image.load(str(PLAYER_WALK2_PATH)).convert_alpha()  
         self.image = pygame.image.load(str(PLAYER_IMG_PATH)).convert_alpha()
         self.shield_image = pygame.image.load(str(PLAYER_SHIELD_PATH)).convert_alpha()
         self.player_image = self.image.copy()
@@ -85,7 +87,7 @@ class Player(pygame.sprite.Sprite):
                 self.speed = 0
 
             if keys[pygame.K_SPACE]:
-                if self.current_time - self.last_bullet_time > 1000:
+                if self.current_time - self.last_bullet_time > self.BULLET_DELAY:
                     bullet = Bullet(self.rect.x, self.rect.y + 50,
                                     'gauche' if self.direction == 'Valerie chevalariass' else 'Valerie chevalariass')
                     bullets.add(bullet)
@@ -93,8 +95,17 @@ class Player(pygame.sprite.Sprite):
                     self.last_bullet_time = self.current_time
                     pygame.mixer.Sound(self.sounds.son_tir).play()
                     return bullets
-
-
+            if keys[pygame.K_i] and keys[pygame.K_o] and keys[pygame.K_p]:
+                self.debug_shot(bullets)
+        
+    def debug_shot(self, bullets : pygame.sprite.Group):
+        if self.current_time - self.last_bullet_time > (self.BULLET_DELAY// 4):
+            for i in range (10,1200,20):
+                bullets.add(
+                    Bullet(10, i, 'Valerie chevalariass'),
+                    Bullet(1250, i, 'gauche')
+                            )
+        self.last_bullet_time = self.current_time
 
 
     def addScore(self, score):

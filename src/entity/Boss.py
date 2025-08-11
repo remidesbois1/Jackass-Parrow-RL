@@ -20,110 +20,119 @@ class Boss(pygame.sprite.Sprite):
     Y = 110
     SIZE =(144,286)
     START_TIME = pygame.time.get_ticks()
-    def __init__(self,scene,allBullets):
-        pygame.sprite.Sprite.__init__(self)
-        self.start_timer = time.time()
-        self.timeLastBullet = time.time()
-        self.victory_shown = False
-        self.intro_finished = False
-        self.scene = scene
-        self.imageBase =  pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)).convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
-        self.image = self.imageBase
-        self.imageDamage = pygame.transform.scale( pygame.image.load(str(TOM_DAMAGE_IMAGE_PATH)).convert_alpha(),(self.SIZE[0]*2,self.SIZE[1]*2))
-        self.rect = self.image.get_rect(x=self.X, y=self.Y)
-        self.health = 10
-        self.evasive = False
-        self.lastEvasiveTime =0
-        self.deathTime = 0
-        self.die = False
+    
 
-        self.lastIndexHole = 0
+    def __init__(self,game_surface,enemy_bullets):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.start_timer = time.time()
+
+        self.game_surface = game_surface
+
+        # Surface
+        self.TEXTURE_TOM = pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)),(self.SIZE[0]*2,self.SIZE[1]*2)).convert_alpha()
+        self.TEXTURE_TOM_DAMAGE = pygame.transform.scale(pygame.image.load(str(TOM_DAMAGE_IMAGE_PATH)),(self.SIZE[0]*2,self.SIZE[1]*2)).convert_alpha()
+        self.image = pygame.transform.scale(pygame.image.load(str(TOM_IMAGE_PATH)),(self.SIZE[0]*2,self.SIZE[1]*2)).convert_alpha()
+        self.rect = self.image.get_rect(x=self.X, y=self.Y)
+
+        self.health = 10
+
+        self.lastEvasiveTime = 0
+        self.deathTime = 0
+        self.outroFinished = False
+
+        self.index_hole = 0
         self.attackSpeed = 1000
-        self.bullets = allBullets
+        self.bullets = enemy_bullets
         self.timeLastBullet = 0
 
-        self.bouclier = BlockGroup(self.scene,None)
+        self.bouclier = BlockGroup(self.game_surface)
         pygame.mixer.music.load(str(BOSS_THEME_PATH))
         pygame.mixer.music.play(-1)
 
     def generateBouclier(self):
-        self.bouclier.clear(self.scene,self.scene)
+        self.bouclier.clear(self.game_surface,self.game_surface)
         self.bouclier.empty()
         choice = [0,1,2]
-        choice.remove(self.lastIndexHole)
-        indexHole = random.choice(choice)
-        self.lastIndexHole = indexHole
+        # évite de laisser 2 fois le même trou de bouclier d'affilée
+        choice.remove(self.index_hole)
+        self.index_hole = random.choice(choice)
+
         for i in range(3):
-            if i != indexHole:
+            if i != self.index_hole:
                 self.bouclier.add(Block(15,12-(i*4),1,3))
-        self.bouclier.draw(self.scene)
+        self.bouclier.draw(self.game_surface)
 
-    def update(self, player_bullets, player, menu, game):
+    def update(self, player_bullets, player, menu, app:"App"):
+
+        
+
+        self.game_surface.blit(self.image, self.rect)
+
         self.bouclier.update()
-
+        
         elapsed_time = time.time() - self.start_timer
-
-        self.scene.blit(self.image, self.rect)
-
+        # condition et action à déplacer dans la classe App
         if elapsed_time <= 5:
             menu.show_boss_intro()
             return
         else:
-            game.activeMenu = 'game'
+            app.activeMenu = 'game'
 
-        if elapsed_time > 5 and not hasattr(self, "intro_finished"):
-            self.intro_finished = True
+        #print(f"Elapsed time: {elapsed_time:.2f} seconds")
+        #print(f"{time.time()} - {self.start_timer} = {time.time() - self.start_timer} ")
 
+        #si l'intro est terminée
         if elapsed_time > 5:
+            # si le boss est mort
             if self.health <= 0:
-                if game.fight_boss:
+                #si en combat de boss
+                if app.game_manager.fight_boss:
+                    # si deathTime n'a jamais été initialisé
                     if self.deathTime == 0:
                         self.bullets.empty()
                         self.deathTime = time.time()
                     menu.show_boss_win()
                     if time.time() - self.deathTime > 5:
-                        game.fight_boss = False
-                        game.Blocs.empty()
-                        game.loadTableau()
+                        self.outroFinished = True
 
                 if self.deathTime == 0:
                     self.deathTime = time.time()
                 menu.show_boss_win()
                 self.attackSpeed = 999999
-                self.image = self.imageDamage
+                self.image.fill((0,0,0,0))
+                self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
 
                 if time.time() - self.deathTime > 5:
-                    self.die = True
                     pygame.mixer.music.load(str(MAIN_THEME_PATH))
                     pygame.mixer.music.play(-1)
-                    game.boss_Killed = True
-                    if not hasattr(self, "victory_shown"):
-                        self.victory_shown = True
 
             if time.time() - self.timeLastBullet > self.attackSpeed / 1000.0:
                 self.timeLastBullet = time.time()
                 ybullet = player.rect.y
                 self.bullets.add(EnemyBullet(self.rect.midleft[0] - 100, ybullet, 'gauche'))
 
-            elif not self.evasive:
+            # si pas evasif
+            if  time.time() - self.lastEvasiveTime > 2:
                 for bullet in player_bullets:
                     if pygame.sprite.collide_rect(self, bullet):
                         self.generateBouclier()
                         self.health -= 1
-                        self.evasive = True
-                        self.image = self.imageDamage
                         self.lastEvasiveTime = time.time()
                         bullet.kill()
                         # colère
                         if self.health <= 3:
                             self.attackSpeed = 700
+                self.image.fill((0,0,0,0))
+                self.image.blit(self.TEXTURE_TOM, (0, 0))
+                self.image.set_alpha(255)
 
+            #si evasif
             else:
+                self.image.fill((0,0,0,0))
+                self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
                 if int(time.time() * 1000) % 200 <= 100:
                     self.image.set_alpha(200)
                 else:
                     self.image.set_alpha(150)
-                if time.time() - self.lastEvasiveTime > 2:
-                    self.evasive = False
-                    self.image = self.imageBase
-                    self.image.set_alpha(255)
+                
