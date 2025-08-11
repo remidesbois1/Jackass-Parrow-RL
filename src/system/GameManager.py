@@ -24,8 +24,37 @@ BACKGROUND_RED_IMAGE_PATH = (
 
 
 class GameManager:
-    
+    """
+    Classe principale gérant le déroulement du jeu.
+
+    Cette classe centralise le cycle de vie des parties :
+    chargement des niveaux, gestion du joueur, des ennemis,
+    des boss, et affichage des éléments graphiques.
+
+    Attributes:
+        level_collection (LevelCollection): Gestionnaire des niveaux.
+        game_surface (Surface): Surface Pygame où le jeu est rendu.
+        background_list (list[Surface]): Liste des images de fond pour chaque monde.
+        world_manager (WorldManager): Gestionnaire des mondes
+        game_over (bool): Indique si la partie est terminée.
+        game_over_time (int): Temps écoulé depuis la fin de partie.
+        fight_boss (bool): Indique si un combat de boss est en cours.
+        boss_mode (bool): Indique si le jeu est en mode Boss.
+        score_saved (bool): Indique si le score a été sauvegardé.
+        player (Player): Le joueur contrôlé.
+        bullets (pygame.sprite.Group): Projectiles du joueur.
+        enemy_group (EnemyGroup): Groupe d’ennemis.
+        enemy_bullets (pygame.sprite.Group): Projectiles ennemis.
+        blocks (BlockGroup): Groupe de blocs responsable de l'apparition des enemies.
+        boss (Boss): Instance de boss actuel.
+    """
     def __init__(self, game_surface: Surface):
+        """
+        Initialise un gestionnaire de jeu.
+
+        Args:
+            game_surface (Surface): Surface sur laquelle le jeu est affiché.
+        """
         # game systemR
         self.level_collection = None
         self.game_surface = game_surface
@@ -39,19 +68,24 @@ class GameManager:
         self.game_over : bool = False
         self.game_over_time : int = 0
         self.fight_boss : bool = False
-        self.boss_mode: bool = False  # Séparer Game Manager et BossModeManager
+        self.boss_mode: bool = False  
         self.score_saved: bool = False
         
         # entities
         self.player: Player = None
+        self.boss = None
+        
+        # groups
         self.bullets: pygame.sprite.Group = None
         self.enemy_group : EnemyGroup = None
         self.enemy_bullets : pygame.sprite.Group = None
         self.blocks : BlockGroup = None
-        self.boss = None
+        
 
     def load_tableau(self):
-
+        """
+        Charge un niveau normal (non boss) et initialise les entités.
+        """
         idNiveau = self.world_manager.get_next_level_id()
         self.level_collection.load(idNiveau)
         
@@ -60,13 +94,17 @@ class GameManager:
         self.blocks.spawn(self.world_manager.get_danger_level(), self.enemy_group)
 
     def load_tableau_boss(self):
-        """Charge le tableau du boss du monde, vide les groupes ennemis et les groupes blocs"""
+        """
+        Charge un niveau de boss (uniquement tom pour l'instant)
+        """
         self.enemy_bullets.empty()
         self.level_collection.load_boss(self.world_manager.get_current_world_type())
         self.player.rect.x, self.player.rect.y = self.level_collection.playerSpawn
-        self.blocks.spawn(self.world_manager.get_danger_level(), self.enemy_group)
 
     def start_game(self):
+        """
+        Initialise une nouvelle partie en mode normal.
+        """
         self.boss_mode = False
         self.fight_boss = False
         self.game_over = False
@@ -87,6 +125,9 @@ class GameManager:
         self.load_tableau()
 
     def start_boss_mode(self):
+        """
+        Initialise une partie en mode boss.
+        """
         self.boss_mode = True
         self.fight_boss = True
 
@@ -104,6 +145,9 @@ class GameManager:
         self.load_tableau_boss()
 
     def render_game_background(self):
+        """
+        dessine le fond du jeu selon le monde actuel.
+        """
         if self.world_manager.get_current_world_type() == WorldType.MONDE_VOLCAN:
             self.game_surface.blit(self.background_list[1], (0, 0))
         elif self.world_manager.get_current_world_type() == WorldType.MONDE_JUNGLE:
@@ -114,7 +158,13 @@ class GameManager:
             )
 
     def render_game(self, app: "App", delta_time: float):
-        """AJOUTER DOCSTRING"""
+        """
+        Dessine l'ensemble des éléments du jeu sur l'écran.
+
+        Args:
+            app (App): Instance principale de l'application.
+            delta_time (float): Temps écoulé depuis la dernière frame.
+        """
         self.render_game_background()
         self.player.update(
             self.game_surface, self.blocks, self.enemy_bullets, delta_time
@@ -129,6 +179,14 @@ class GameManager:
             app.menu.show_end_screen()
 
     def on_loop(self, delta_time: float, keys: ScancodeWrapper, app: "App"):
+        """
+        Met à jour la logique du jeu pour un cycle.
+
+        Args:
+            delta_time (float): Temps écoulé depuis la dernière frame.
+            keys (ScancodeWrapper): État des touches clavier.
+            app (App): Instance principale de l'application.
+        """
         WIDTH = 1280
 
         self.blocks.update()
