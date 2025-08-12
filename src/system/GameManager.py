@@ -176,7 +176,7 @@ class GameManager:
         if self.fight_boss:
             self.boss.update(self.bullets, self.player, app.menu, app)
         if self.game_over:
-            app.menu.show_end_screen()
+            app.menu.show_end_screen(app)
 
     def on_loop(self, delta_time: float, keys: ScancodeWrapper, app: "App"):
         """

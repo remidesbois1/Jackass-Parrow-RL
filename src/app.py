@@ -14,6 +14,7 @@ from src.entity.EnemyGroup import EnemyGroup
 from src.system.Sound import Sound
 from src.system.GameManager import GameManager
 
+
 # === CONSTANTES DE CHEMINS ===
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,6 +30,8 @@ CAT_COMIC_FONT_PATH = PROJECT_ROOT / "assets" / "fonts" / "Cat Comic.ttf"
 
 # Fichier de score
 SCORES_FILE_PATH = PROJECT_ROOT / "scores.json"
+
+
 
 
 
@@ -74,7 +77,7 @@ class App:
  
         self.boss_button_rect = pygame.Rect(0, 0, 0, 0)
         
-        self.game_manager = None
+        self.game_manager : GameManager = None
 
    
 
@@ -94,7 +97,7 @@ class App:
         self.HUDfont = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 36)
         self.game_manager = GameManager(self.gameSurface)
         self.ui_manager = pygame_gui.UIManager(self.size, str(PROJECT_ROOT / "assets" / "themes" / "theme.json"))
-        self.menu = Menu(self, self.ui_manager)
+        self.menu = Menu(self.ui_manager,self.gameSurface)
 
     def handleEvent(self, event):
         self.ui_manager.process_events(event)
@@ -133,7 +136,7 @@ class App:
             self.game_manager.on_loop(self.delta_time,keys,self)
 
             if self.game_manager.game_over and not self.game_manager.score_saved:
-                self.menu.show_end_screen()
+                self.menu.show_end_screen(self)
 
 
 
@@ -163,21 +166,14 @@ class App:
         """
         manages all rendering processes on the current loop.
         """
-
+        #print(self.show_start_menu)
         if self.show_start_menu:
-            self.menu.show_start_screen()
+            self.menu.show_start_screen(self)
         else:
             self.game_manager.render_game(self,self.delta_time)
-            self.player.update(self.gameSurface, self.Blocs, self.enemy_bullets, self.delta_time)
-            self.Blocs.draw(self.gameSurface)
-            self.bullets.draw(self.gameSurface)
-            self.enemies.draw(self.gameSurface)
-            self.enemy_bullets.draw(self.gameSurface)
-            if self.fight_boss:
-                self.boss.update(self.bullets, self.player, self.menu, self)
 
-        if self.game_over:
-            self.menu.show_end_screen()
+        if self.game_manager.game_over:
+            self.menu.show_end_screen(self)
 
         if self.activeMenu == "game":
             score_text = self.HUDfont.render(f"Score: {self.game_manager.player.score}", True, (255, 255, 255))

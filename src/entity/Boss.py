@@ -74,7 +74,7 @@ class Boss(pygame.sprite.Sprite):
         elapsed_time = time.time() - self.start_timer
         # condition et action à déplacer dans la classe App
         if elapsed_time <= 5:
-            menu.show_boss_intro()
+            menu.show_boss_intro(app)
             return
         else:
             app.activeMenu = 'game'

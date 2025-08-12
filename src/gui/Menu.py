@@ -1,9 +1,11 @@
 # src/gui/Menu.py
 
+from typing import TYPE_CHECKING
 import pygame
 import json
 import pygame_gui
 from pathlib import Path
+from src.appConfig import AppConfig
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -14,10 +16,17 @@ PLAYERHD_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "playerHD.png
 SCORES_FILE_PATH = PROJECT_ROOT / "scores.json"
 MENU_BG_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "background" / "menu.png"
 
+BACKGROUND_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "background" / "fondGameJam.png"
+
+
+if TYPE_CHECKING:
+    from src.app import App
+    
 class Menu:
-    def __init__(self, game, ui_manager):
-        self.game = game
+    def __init__(self, ui_manager,game_surface : pygame.Surface):
         self.ui_manager = ui_manager
+        self.game_surface = game_surface
+        
         self.menu_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 80)
         self.lore_font = pygame.font.Font(str(DIMBO_FONT_PATH), 38)
         self.button_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 50)
@@ -35,56 +44,58 @@ class Menu:
         self.leaderboard_close_button = None
         
         self.setup_start_menu()
-
-    def handleMenu(self, event, game:"App"):
-        if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
-            if game.start_button_rect.collidepoint(event.pos) and not game.show_leaderboard:
-                game.show_start_menu = False  # Démarre le jeu
-                game.game_manager.start_game()
+                
     def setup_start_menu(self):
         button_width = 220
         button_height = 80
-        x_pos = self.game.width // 2 - button_width // 2
+        x_pos = AppConfig.WIDTH // 2 - button_width // 2
+        self.game_surface.blit(pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha(), (0, 0))
         
-        self.start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2), (button_width, button_height)),
+        self.start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, AppConfig.HEIGHT // 2), (button_width, button_height)),
                                                             text='Lancer',
                                                             manager=self.ui_manager,
                                                             object_id='@menu_button')
 
-        self.boss_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2 + 70), (button_width, button_height)),
+        self.boss_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, AppConfig.HEIGHT // 2 + 70), (button_width, button_height)),
                                                            text='Mode Boss',
                                                            manager=self.ui_manager,
                                                            object_id='@menu_button')
 
-        self.lore_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2 + 140), (button_width, button_height)),
+        self.lore_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, AppConfig.HEIGHT // 2 + 140), (button_width, button_height)),
                                                          text='Histoire',
                                                          manager=self.ui_manager,
                                                          object_id='@menu_button')
                                                          
-        self.leaderboard_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, self.game.height // 2 + 210), (button_width, button_height)),
+        self.leaderboard_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((x_pos, AppConfig.HEIGHT // 2 + 210), (button_width, button_height)),
                                                                     text='Classement',
                                                                     manager=self.ui_manager,
                                                                     object_id='@menu_button')
-    def handleMenu(self, event, game):
+    def handleMenu(self, event, app:"App"):
+        #if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
+        #    if game.start_button_rect.collidepoint(event.pos) and not game.show_leaderboard:
+        #        game.show_start_menu = False  # Démarre le jeu
+        #        game.game_manager.start_game()
+        #
+                
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == self.start_button:
-                game.show_start_menu = False
-                game.startGame()
-                pygame.mixer.Sound(game.sounds.son_button).play()
-                game.activeMenu = "game"
+                app.show_start_menu = False
+                app.game_manager.start_game()
+                pygame.mixer.Sound(app.sounds.son_button).play()
+                app.activeMenu = "game"
                 self.hide_start_menu()
             elif event.ui_element == self.boss_button:
-                game.show_start_menu = False
-                game.game_manager.boss_mode = True
-                pygame.mixer.Sound(game.sounds.son_button).play()
-                game.game_manager.start_boss_mode()
-                game.activeMenu = "game"
+                app.show_start_menu = False
+                app.game_manager.boss_mode = True
+                pygame.mixer.Sound(app.sounds.son_button).play()
+                app.game_manager.start_boss_mode()
+                app.activeMenu = "game"
                 self.hide_start_menu()
             elif event.ui_element == self.lore_button:
-                pygame.mixer.Sound(game.sounds.son_button).play()
+                pygame.mixer.Sound(app.sounds.son_button).play()
                 self.show_lore_window()
             elif event.ui_element == self.leaderboard_button:
-                pygame.mixer.Sound(game.sounds.son_button).play()
+                pygame.mixer.Sound(app.sounds.son_button).play()
                 self.show_leaderboard_window()
             elif self.lore_close_button and event.ui_element == self.lore_close_button:
                 self.lore_window.kill()
@@ -106,8 +117,9 @@ class Menu:
                 self.leaderboard_window = None
                 self.leaderboard_close_button = None
 
-    def show_start_screen(self):
-        self.game.activeMenu = "start"
+    def show_start_screen(self , app: "App"):
+        app.activeMenu = "start"
+        self.game_surface.blit(pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha(), (0, 0))
         self.start_button.show()
         self.boss_button.show()
         self.lore_button.show()
@@ -117,34 +129,34 @@ class Menu:
         # TOM
         tom_image = pygame.image.load(str(TOM_IMAGE_PATH)).convert_alpha()
         tom_image = pygame.transform.scale(tom_image, (
-            tom_image.get_width() * self.game.height // 1.4 // tom_image.get_height(), self.game.height // 1.4))
+            tom_image.get_width() * AppConfig.HEIGHT // 1.4 // tom_image.get_height(), AppConfig.HEIGHT // 1.4))
 
         tom_rect = tom_image.get_rect(
-            center=(tom_image.get_width() // 2 + 50, self.game.height // 2))
-        self.game.gameSurface.blit(tom_image, tom_rect)
+            center=(tom_image.get_width() // 2 + 50, AppConfig.HEIGHT // 2))
+        self.game_surface.blit(tom_image, tom_rect)
 
         # PERSO PRINCIPAL
         perso_image = pygame.image.load(str(PLAYERHD_IMAGE_PATH)).convert_alpha()
         perso_image = pygame.transform.scale(perso_image, (
-            perso_image.get_width() * self.game.height // 1.4 // perso_image.get_height(), self.game.height // 1.4))
+            perso_image.get_width() * AppConfig.HEIGHT // 1.4 // perso_image.get_height(), AppConfig.HEIGHT // 1.4))
 
         perso_rect = perso_image.get_rect(
-            center=(perso_image.get_width() // 0.45, self.game.height // 2))
-        self.game.gameSurface.blit(perso_image, perso_rect)
+            center=(perso_image.get_width() // 0.45, AppConfig.HEIGHT // 2))
+        self.game_surface.blit(perso_image, perso_rect)
 
         title_text = self.menu_font.render("Jackass-Parrow", True, (50, 50, 50))
-        title_rect = title_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 3 + 5))
-        self.game.gameSurface.blit(title_text, title_rect)
+        title_rect = title_text.get_rect(center=(AppConfig.WIDTH // 2 + 5, AppConfig.HEIGHT // 3 + 5))
+        self.game_surface.blit(title_text, title_rect)
         title_text = self.menu_font.render("Jackass-Parrow", True, (255, 255, 255))
-        title_rect = title_text.get_rect(center=(self.game.width // 2, self.game.height // 3))
-        self.game.gameSurface.blit(title_text, title_rect)
+        title_rect = title_text.get_rect(center=(AppConfig.WIDTH // 2, AppConfig.HEIGHT // 3))
+        self.game_surface.blit(title_text, title_rect)
 
 
         start_text = self.button_font.render("Lancer", True, (255, 255, 255))
-        self.game.start_button_rect = start_text.get_rect()
-        self.game.start_button_rect.width += 10 * 2
-        self.game.start_button_rect.height += 10 * 2
-        self.game.start_button_rect.center = (self.game.width // 2, self.game.height // 2)
+        app.start_button_rect = start_text.get_rect()
+        app.start_button_rect.width += 10 * 2
+        app.start_button_rect.height += 10 * 2
+        app.start_button_rect.center = (AppConfig.WIDTH // 2, AppConfig.HEIGHT // 2)
 
     def hide_start_menu(self):
         self.start_button.hide()
@@ -162,7 +174,7 @@ class Menu:
 
             Aujourd'hui, menacé par Tom de l'Abbaye et ses chevaliers, Jackass-Parrow est prêt à tout pour défendre ceux qui l'ont recueilli.
             """
-            window_rect = pygame.Rect((self.game.width // 4, self.game.height // 6), (self.game.width // 2, self.game.height // 1.5))
+            window_rect = pygame.Rect((AppConfig.WIDTH // 4, AppConfig.HEIGHT // 6), (AppConfig.WIDTH // 2, AppConfig.HEIGHT // 1.5))
 
             button_width, button_height, padding = 180, 70, 20
             text_box_height = window_rect.height - button_height - padding * 2
@@ -218,7 +230,7 @@ class Menu:
             for i, score in enumerate(scores[:10]):
                 leaderboard_text += f"{i+1}. {score['pseudo']} - {score['score']}<br>"
 
-            window_rect = pygame.Rect((self.game.width // 4, self.game.height // 6), (self.game.width // 2, self.game.height // 1.5))
+            window_rect = pygame.Rect((AppConfig.WIDTH // 4, AppConfig.HEIGHT // 6), (AppConfig.WIDTH // 2, AppConfig.HEIGHT // 1.5))
 
             button_width, button_height, padding = 180, 70, 20
             text_box_height = window_rect.height - button_height - padding * 2
@@ -260,44 +272,8 @@ class Menu:
                 object_id='@menu_button'
             )
 
-    def show_end_screen(self):
-        self.game.activeMenu = "end"
-        frame_surface = pygame.Surface((self.game.width // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
-        frame_surface.fill((0, 0, 0, 164))
-        frame_rect = frame_surface.get_rect(center=(self.game.width // 2, self.game.height // 2))
-        self.game.gameSurface.blit(frame_surface, frame_rect)
-
-        end_text = self.menu_font.render("Game Over", True, (255, 255, 255))
-        end_text_rect = end_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 3 + 5))
-        self.game.gameSurface.blit(end_text, end_text_rect)
-
-        score_text = self.menu_font.render(f"Score : {self.game.game_manager.player.score}", True, (255, 255, 255))
-        score_text_rect = score_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 2 + 5))
-        self.game.gameSurface.blit(score_text, score_text_rect)
-
-        # zone saisie pseudo
-        pygame.draw.rect(self.game.gameSurface, self.game.input_box_color, self.game.input_box, 2)
-        input_text = self.button_font.render(self.game.user_text, True, (255, 255, 255))
-        input_text_rect = input_text.get_rect(
-            topleft=(self.game.input_box.x + 5, self.game.input_box.y + 5))
-        self.game.gameSurface.blit(input_text, input_text_rect)
-
-
-        # bouton enregistrer
-        save_text = self.button_font.render("Enregistrer", True, (255, 255, 255))
-        self.game.save_button_rect = save_text.get_rect(center=(self.game.width // 2, self.game.height // 1.3))
-
-        # changement de couleur
-        mouse_pos = pygame.mouse.get_pos()
-        save_button_color = (0, 150, 0)
-        if self.game.save_button_rect.collidepoint(mouse_pos):
-            save_button_color = (0, 200, 0)
-
-        pygame.draw.rect(self.game.gameSurface, save_button_color, self.game.save_button_rect, border_radius=10)
-        self.game.gameSurface.blit(save_text, self.game.save_button_rect)
-
-    def show_boss_intro(self):
-        self.game.activeMenu = "intro"
+    def show_boss_intro(self,app:"App"):
+        app.activeMenu = "intro"
         intro_text = [
             "Le combat final approche",
             "Préparez-vous à combattre le grand...",
@@ -325,8 +301,8 @@ class Menu:
                                             pygame.SRCALPHA)
         background_surface.fill((*background_color, alpha))
 
-        screen_width = self.game.gameSurface.get_width()
-        screen_height = self.game.gameSurface.get_height()
+        screen_width = self.game_surface.get_width()
+        screen_height = self.game_surface.get_height()
         background_x = (screen_width - background_width) // 2
         background_y = (screen_height - background_height) // 2
 
@@ -336,7 +312,7 @@ class Menu:
             background_surface.blit(text_surface, (text_x, y_offset))
             y_offset += text_surface.get_height()
 
-        self.game.gameSurface.blit(background_surface, (background_x, background_y))
+        self.game_surface.blit(background_surface, (background_x, background_y))
 
     def show_boss_win(self):
         victory_text = [
@@ -368,8 +344,8 @@ class Menu:
         background_surface = pygame.Surface((background_width, background_height), pygame.SRCALPHA)
         background_surface.fill((*background_color, alpha))
 
-        screen_width = self.game.gameSurface.get_width()
-        screen_height = self.game.gameSurface.get_height()
+        screen_width = self.game_surface.get_width()
+        screen_height = self.game_surface.get_height()
         background_x = (screen_width - background_width) // 2
         background_y = (screen_height - background_height) // 2
 
@@ -379,42 +355,42 @@ class Menu:
             background_surface.blit(text_surface, (text_x, y_offset))
             y_offset += text_surface.get_height()
 
-        self.game.gameSurface.blit(background_surface, (background_x, background_y))
+        self.game_surface.blit(background_surface, (background_x, background_y))
 
 
     # pareil à réecrire
-    def show_end_screen(self):
-        self.game.activeMenu = "end"
-        frame_surface = pygame.Surface((self.game.width // 1.3, self.game.height // 1.3), pygame.SRCALPHA)
+    def show_end_screen(self,app:"App"):
+        app.activeMenu = "end"
+        frame_surface = pygame.Surface((AppConfig.WIDTH // 1.3, AppConfig.HEIGHT // 1.3), pygame.SRCALPHA)
         frame_surface.fill((0, 0, 0, 164))
-        frame_rect = frame_surface.get_rect(center=(self.game.width // 2, self.game.height // 2))
-        self.game.gameSurface.blit(frame_surface, frame_rect)
+        frame_rect = frame_surface.get_rect(center=(AppConfig.WIDTH // 2, AppConfig.HEIGHT // 2))
+        self.game_surface.blit(frame_surface, frame_rect)
 
         end_text = self.menu_font.render("Game Over", True, (255, 255, 255))
-        end_text_rect = end_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 3 + 5))
-        self.game.gameSurface.blit(end_text, end_text_rect)
+        end_text_rect = end_text.get_rect(center=(AppConfig.WIDTH // 2 + 5, AppConfig.HEIGHT // 3 + 5))
+        self.game_surface.blit(end_text, end_text_rect)
 
-        score_text = self.menu_font.render(f"Score : {self.game.player.score}", True, (255, 255, 255))
-        score_text_rect = score_text.get_rect(center=(self.game.width // 2 + 5, self.game.height // 2 + 5))
-        self.game.gameSurface.blit(score_text, score_text_rect)
+        score_text = self.menu_font.render(f"Score : {app.game_manager.player.score}", True, (255, 255, 255))
+        score_text_rect = score_text.get_rect(center=(AppConfig.WIDTH // 2 + 5, AppConfig.HEIGHT // 2 + 5))
+        self.game_surface.blit(score_text, score_text_rect)
 
         # zone saisie pseudo
-        pygame.draw.rect(self.game.gameSurface, self.game.input_box_color, self.game.input_box, 2)
-        input_text = self.button_font.render(self.game.user_text, True, (255, 255, 255))
+        pygame.draw.rect(self.game_surface, app.input_box_color, app.input_box, 2)
+        input_text = self.button_font.render(app.user_text, True, (255, 255, 255))
         input_text_rect = input_text.get_rect(
-            topleft=(self.game.input_box.x + 5, self.game.input_box.y + 5))
-        self.game.gameSurface.blit(input_text, input_text_rect)
+            topleft=(app.input_box.x + 5, app.input_box.y + 5))
+        self.game_surface.blit(input_text, input_text_rect)
 
 
         # bouton enregistrer
         save_text = self.button_font.render("Enregistrer", True, (255, 255, 255))
-        self.game.save_button_rect = save_text.get_rect(center=(self.game.width // 2, self.game.height // 1.3))
+        app.save_button_rect = save_text.get_rect(center=(AppConfig.WIDTH // 2, AppConfig.HEIGHT // 1.3))
 
         # changement de couleur
         mouse_pos = pygame.mouse.get_pos()
         save_button_color = (0, 150, 0)
-        if self.game.save_button_rect.collidepoint(mouse_pos):
+        if app.save_button_rect.collidepoint(mouse_pos):
             save_button_color = (0, 200, 0)
 
-        pygame.draw.rect(self.game.gameSurface, save_button_color, self.game.save_button_rect, border_radius=10)
-        self.game.gameSurface.blit(save_text, self.game.save_button_rect)
+        pygame.draw.rect(self.game_surface, save_button_color, app.save_button_rect, border_radius=10)
+        self.game_surface.blit(save_text, app.save_button_rect)
