@@ -21,11 +21,10 @@ PLAYER_FIRING_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_firing
 PLAYER_DEAD_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_dead.png"
 
 class Player(pygame.sprite.Sprite):
-    BASE_SPEED = 360  
-    KNOCKBACK_FORCE = 400  
-    MAX_FALL_SPEED = 900 
-    JUMP_FORCE = 1210
-    KNOCKBACK_FORCE = 1200
+    BASE_SPEED = 400 
+    MAX_FALL_SPEED = 1000 
+    JUMP_FORCE = 1250
+    KNOCKBACK_FORCE = 1500
     BULLET_DELAY = 1000  # Délai entre les tirs en millisecondes 1sec
 
     def __init__(self,x=200,y=200):
@@ -202,7 +201,7 @@ class Player(pygame.sprite.Sprite):
         self.check_bullets(enemy_bullets)
        
         # knockback 
-        self.rect.x += self.knockback * delta_time
+        #self.rect.x += self.knockback * delta_time
         self.knockback *= 0.8
 
         if abs(self.knockback) < 0.1:
@@ -226,6 +225,6 @@ class Player(pygame.sprite.Sprite):
         if not self.onGround:
             self.gravity += 60
             
-        self.rect.y += (self.gravity) * delta_time
-        self.rect.x += self.speed * delta_time
+        self.rect.y += int((self.gravity) * delta_time)
+        self.rect.x += int((self.speed + self.knockback)* delta_time)
 
