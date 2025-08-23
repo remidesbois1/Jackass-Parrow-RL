@@ -202,11 +202,12 @@ class Player(pygame.sprite.Sprite):
        
         # knockback 
         #self.rect.x += self.knockback * delta_time
-        self.knockback *= 0.8
+        self.knockback *= 0.85
 
         if abs(self.knockback) < 0.1:
             self.knockback = 0
-
+        else:
+             print(self.knockback*delta_time)
         #maj du saut et de la pause
 
         self.onGround = False
@@ -227,4 +228,5 @@ class Player(pygame.sprite.Sprite):
             
         self.rect.y += int((self.gravity) * delta_time)
         self.rect.x += int((self.speed + self.knockback)* delta_time)
+       
 
