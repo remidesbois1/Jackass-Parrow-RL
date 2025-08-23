@@ -8,6 +8,9 @@ from src.block.BlockGroup import BlockGroup
 from src.entity.EnemyBullet import EnemyBullet
 from pathlib import Path
 
+from src.entity.Player import Player
+from src.gui.MenuContext import MenuContext
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TOM_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "tom.png"
 TOM_DAMAGE_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "tomDamage.png"
@@ -65,46 +68,35 @@ class Boss(pygame.sprite.Sprite):
                 self.bouclier.add(Block(15,12-(i*4),1,3))
         self.bouclier.draw(self.game_surface)
 
-    def update(self, player_bullets, player, menu, app:"App"):
-
-        
+    def update(self, player_bullets, player : Player, menu_context: MenuContext):
 
         self.game_surface.blit(self.image, self.rect)
 
         self.bouclier.update()
         
-        self.elapsed_time = time.time() - self.start_timer
-        # condition et action à déplacer dans la classe App
+
+        #la fonction update est appelée uniquement si l'active_menu est INGAME_MENU
         
+        # si le boss est mort
+        if self.health <= 0:
+            # si deathTime n'a jamais été initialisé
+            if self.deathTime == 0:
+                self.bullets.empty()
+                self.deathTime = time.time()
+            menu_context.set_active_menu(MenuContext.OUTRO_BOSS_MENU)
+            
 
-        #print(f"Elapsed time: {elapsed_time:.2f} seconds")
-        #print(f"{time.time()} - {self.start_timer} = {time.time() - self.start_timer} ")
+            #self.attackSpeed = 999999 # assez lent pour ne plus tirer avant la fin
+            self.image.fill((0,0,0,0))
+            self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
 
-        #si l'intro est terminée
-        if self.elapsed_time > 5:
-            # si le boss est mort
-            if self.health <= 0:
-                #si en combat de boss
-                if app.game_manager.fight_boss:
-                    # si deathTime n'a jamais été initialisé
-                    if self.deathTime == 0:
-                        self.bullets.empty()
-                        self.deathTime = time.time()
-                    menu.show_boss_win()
-                    if time.time() - self.deathTime > 5:
-                        self.outroFinished = True
-
-                if self.deathTime == 0:
-                    self.deathTime = time.time()
-                menu.show_boss_win()
-                self.attackSpeed = 999999
-                self.image.fill((0,0,0,0))
-                self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
-
-                if time.time() - self.deathTime > 5:
-                    pygame.mixer.music.load(str(MAIN_THEME_PATH))
-                    pygame.mixer.music.play(-1)
-
+            #fin de l'outro
+            if time.time() - self.deathTime > 5:
+                self.outroFinished = True
+                pygame.mixer.music.load(str(MAIN_THEME_PATH))
+                pygame.mixer.music.play(-1)
+        else:
+            # gestion des tirs
             if time.time() - self.timeLastBullet > self.attackSpeed / 1000.0:
                 self.timeLastBullet = time.time()
                 ybullet = player.rect.y

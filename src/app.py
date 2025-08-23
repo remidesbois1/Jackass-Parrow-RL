@@ -1,3 +1,4 @@
+import time
 import pygame
 import json
 import pygame_gui
@@ -74,7 +75,6 @@ class App:
         self.close_button_rect = None
         self.show_leaderboard_button = True
 
- 
         self.boss_button_rect = pygame.Rect(0, 0, 0, 0)
         
         self.game_manager : GameManager = None
@@ -144,9 +144,9 @@ class App:
     def restart(self):
         pygame.mixer.music.load(str(MAIN_THEME_PATH))
         pygame.mixer.music.play(-1)
-        self.game_manager.start_game()
-        self.show_start_menu = True
- 
+        #self.game_manager.start_game()
+        self.menu_context.set_active_menu(MenuContext.START_MENU)
+        self.game_manager = GameManager(self.gameSurface)
         
 
     def save_score(self):
@@ -168,10 +168,8 @@ class App:
         manages all rendering processes on the current loop.
         """
         #print(self.show_start_menu)
-        if self.show_start_menu:
+        if self.menu_context.get_active_menu() == MenuContext.START_MENU:
             self.menu.show_start_screen(self)
-        else:
-            self.game_manager.render_game(self,self.delta_time)
 
         if self.game_manager.game_over:
             self.menu.show_end_screen(self)
@@ -181,15 +179,24 @@ class App:
             health_text = self.HUDfont.render(f"Vie: {self.game_manager.player.health}", True, (255, 255, 255))
             self.gameSurface.blit(score_text, (10, 10))
             self.gameSurface.blit(health_text, (10, 40))
+            self.game_manager.render_game(self,self.delta_time)
+
+        if self.menu_context.get_active_menu() == MenuContext.INTRO_BOSS_MENU:
+            self.menu.show_boss_intro(self)
+
+        if self.menu_context.get_active_menu() == MenuContext.OUTRO_BOSS_MENU:
+            self.menu.show_boss_win()
+
 
         if self.game_manager.boss is not None:
-            if self.game_manager.boss.elapsed_time <= 5:
-                self.menu.show_boss_intro(self)
+            elapsed_boss_time = time.time() - self.game_manager.boss.start_timer
+            if elapsed_boss_time <= 5:
+                self.menu_context.set_active_menu(MenuContext.INTRO_BOSS_MENU)
             else:
                 self.menu_context.set_active_menu(MenuContext.INGAME_MENU)
 
         self.ui_manager.draw_ui(self.gameSurface)
-
+        #print(self.menu_context.get_active_menu())
 
     def shutdown(self)->None:
         """

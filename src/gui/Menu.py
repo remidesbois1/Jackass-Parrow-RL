@@ -72,21 +72,14 @@ class Menu:
                                                                     manager=self.ui_manager,
                                                                     object_id='@menu_button')
     def handleMenu(self, event, app:"App"):
-        #if game.activeMenu in ("start", "leaderboard", "lore") and event.type == pygame.MOUSEBUTTONDOWN:
-        #    if game.start_button_rect.collidepoint(event.pos) and not game.show_leaderboard:
-        #        game.show_start_menu = False  # Démarre le jeu
-        #        game.game_manager.start_game()
-        #
                 
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == self.start_button:
-                app.show_start_menu = False
                 app.game_manager.start_game()
                 pygame.mixer.Sound(app.sounds.son_button).play()
                 self.menu_context.set_active_menu(MenuContext.INGAME_MENU)
                 self.hide_start_menu()
             elif event.ui_element == self.boss_button:
-                app.show_start_menu = False
                 app.game_manager.boss_mode = True
                 pygame.mixer.Sound(app.sounds.son_button).play()
                 app.game_manager.start_boss_mode()
@@ -274,7 +267,7 @@ class Menu:
             )
 
     def show_boss_intro(self,app:"App"):
-        self.menu_context.set_active_menu(MenuContext.INTRO_BOSS_MENU)
+        
         intro_text = [
             "Le combat final approche",
             "Préparez-vous à combattre le grand...",

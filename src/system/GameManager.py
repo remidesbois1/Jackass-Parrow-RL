@@ -174,7 +174,7 @@ class GameManager:
         self.enemy_group.draw(self.game_surface)
         self.enemy_bullets.draw(self.game_surface)
         if self.fight_boss:
-            self.boss.update(self.bullets, self.player, app.menu, app)
+            self.boss.update(self.bullets, self.player, app.menu.menu_context)
         if self.game_over:
             app.menu.show_end_screen(app)
 
