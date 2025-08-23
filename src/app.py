@@ -146,6 +146,8 @@ class App:
         pygame.mixer.music.play(-1)
         #self.game_manager.start_game()
         self.menu_context.set_active_menu(MenuContext.START_MENU)
+        self.menu.menu_context.clear_active_modal()
+        
         self.game_manager = GameManager(self.gameSurface)
         
 
@@ -177,22 +179,24 @@ class App:
         if self.menu_context.get_active_menu() == MenuContext.INGAME_MENU:
             score_text = self.HUDfont.render(f"Score: {self.game_manager.player.score}", True, (255, 255, 255))
             health_text = self.HUDfont.render(f"Vie: {self.game_manager.player.health}", True, (255, 255, 255))
+            
+            self.game_manager.render_game(self,self.delta_time)
             self.gameSurface.blit(score_text, (10, 10))
             self.gameSurface.blit(health_text, (10, 40))
-            self.game_manager.render_game(self,self.delta_time)
 
-        if self.menu_context.get_active_menu() == MenuContext.INTRO_BOSS_MENU:
+        if self.menu_context.get_active_modal() == MenuContext.INTRO_BOSS_MENU:
             self.menu.show_boss_intro(self)
 
-        if self.menu_context.get_active_menu() == MenuContext.OUTRO_BOSS_MENU:
+        if self.menu_context.get_active_modal() == MenuContext.OUTRO_BOSS_MENU:
             self.menu.show_boss_win()
 
 
         if self.game_manager.boss is not None:
             elapsed_boss_time = time.time() - self.game_manager.boss.start_timer
             if elapsed_boss_time <= 5:
-                self.menu_context.set_active_menu(MenuContext.INTRO_BOSS_MENU)
+                self.menu_context.set_active_modal(MenuContext.INTRO_BOSS_MENU)
             else:
+                self.menu_context.clear_active_modal()
                 self.menu_context.set_active_menu(MenuContext.INGAME_MENU)
 
         self.ui_manager.draw_ui(self.gameSurface)

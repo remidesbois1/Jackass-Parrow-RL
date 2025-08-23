@@ -166,7 +166,7 @@ class Player(pygame.sprite.Sprite):
                     self.speed = 0
                 if self.knockback > 0:
                     self.knockback = -self.knockback/2
-
+    
     def update(self,scene: Surface, Blocs : BlockGroup, enemy_bullets: EnemyBullet, delta_time: float):
         self.current_time = pygame.time.get_ticks()
 
@@ -206,8 +206,6 @@ class Player(pygame.sprite.Sprite):
 
         if abs(self.knockback) < 0.1:
             self.knockback = 0
-        else:
-             print(self.knockback*delta_time)
         #maj du saut et de la pause
 
         self.onGround = False

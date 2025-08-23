@@ -293,6 +293,7 @@ class Menu:
         background_height = total_height + 2 * padding
         background_surface = pygame.Surface((background_width, background_height),
                                             pygame.SRCALPHA)
+                                            
         background_surface.fill((*background_color, alpha))
 
         screen_width = self.game_surface.get_width()
@@ -305,7 +306,7 @@ class Menu:
             text_x = (background_width - text_surface.get_width()) // 2
             background_surface.blit(text_surface, (text_x, y_offset))
             y_offset += text_surface.get_height()
-
+        self.game_surface.set_alpha(150)
         self.game_surface.blit(background_surface, (background_x, background_y))
 
     def show_boss_win(self):

@@ -167,7 +167,10 @@ class GameManager:
         """
         self.render_game_background()
         self.player.update(
-            self.game_surface, self.blocks, self.enemy_bullets, delta_time
+            self.game_surface, 
+            self.blocks, 
+            self.enemy_bullets, 
+            delta_time
         )
         self.blocks.draw(self.game_surface)
         self.bullets.draw(self.game_surface)

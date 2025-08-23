@@ -83,7 +83,7 @@ class Boss(pygame.sprite.Sprite):
             if self.deathTime == 0:
                 self.bullets.empty()
                 self.deathTime = time.time()
-            menu_context.set_active_menu(MenuContext.OUTRO_BOSS_MENU)
+            menu_context.set_active_modal(MenuContext.OUTRO_BOSS_MENU)
             
 
             #self.attackSpeed = 999999 # assez lent pour ne plus tirer avant la fin
