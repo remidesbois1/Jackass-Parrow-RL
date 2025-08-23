@@ -6,6 +6,7 @@ import json
 import pygame_gui
 from pathlib import Path
 from src.appConfig import AppConfig
+from src.gui.MenuContext import MenuContext
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -23,10 +24,10 @@ if TYPE_CHECKING:
     from src.app import App
     
 class Menu:
-    def __init__(self, ui_manager,game_surface : pygame.Surface):
+    def __init__(self, ui_manager,game_surface : pygame.Surface,menu_context:MenuContext):
         self.ui_manager = ui_manager
         self.game_surface = game_surface
-        
+        self.menu_context = menu_context
         self.menu_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 80)
         self.lore_font = pygame.font.Font(str(DIMBO_FONT_PATH), 38)
         self.button_font = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 50)
@@ -82,14 +83,14 @@ class Menu:
                 app.show_start_menu = False
                 app.game_manager.start_game()
                 pygame.mixer.Sound(app.sounds.son_button).play()
-                app.activeMenu = "game"
+                self.menu_context.set_active_menu(MenuContext.INGAME_MENU)
                 self.hide_start_menu()
             elif event.ui_element == self.boss_button:
                 app.show_start_menu = False
                 app.game_manager.boss_mode = True
                 pygame.mixer.Sound(app.sounds.son_button).play()
                 app.game_manager.start_boss_mode()
-                app.activeMenu = "game"
+                self.menu_context.set_active_menu(MenuContext.INGAME_MENU)
                 self.hide_start_menu()
             elif event.ui_element == self.lore_button:
                 pygame.mixer.Sound(app.sounds.son_button).play()
@@ -118,7 +119,7 @@ class Menu:
                 self.leaderboard_close_button = None
 
     def show_start_screen(self , app: "App"):
-        app.activeMenu = "start"
+        self.menu_context.set_active_menu(MenuContext.START_MENU)
         self.game_surface.blit(pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha(), (0, 0))
         self.start_button.show()
         self.boss_button.show()
@@ -273,7 +274,7 @@ class Menu:
             )
 
     def show_boss_intro(self,app:"App"):
-        app.activeMenu = "intro"
+        self.menu_context.set_active_menu(MenuContext.INTRO_BOSS_MENU)
         intro_text = [
             "Le combat final approche",
             "Préparez-vous à combattre le grand...",
@@ -360,7 +361,7 @@ class Menu:
 
     # pareil à réecrire
     def show_end_screen(self,app:"App"):
-        app.activeMenu = "end"
+        self.menu_context.set_active_menu(MenuContext.END_MENU)
         frame_surface = pygame.Surface((AppConfig.WIDTH // 1.3, AppConfig.HEIGHT // 1.3), pygame.SRCALPHA)
         frame_surface.fill((0, 0, 0, 164))
         frame_rect = frame_surface.get_rect(center=(AppConfig.WIDTH // 2, AppConfig.HEIGHT // 2))

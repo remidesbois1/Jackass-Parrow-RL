@@ -7,6 +7,7 @@ from src.block.Block import Block
 from src.block.BlockGroup import BlockGroup
 from src.entity.Boss import Boss
 from src.entity.Enemy import Enemy
+from src.gui.MenuContext import MenuContext
 from src.gui.Menu import Menu
 from src.entity.Player import Player
 from src.system.LevelCollection import LevelCollection
@@ -55,8 +56,7 @@ class App:
         self.gameSurface = None
         self.size = self.width, self.height = 1280, 800
 
-
-        self.activeMenu = 'start'
+        self.menu_context = MenuContext(MenuContext.START_MENU)
         self.show_start_menu = True
         self.show_lore = False
         self.start_button_rect = pygame.Rect(0, 0, 0, 0)
@@ -97,7 +97,7 @@ class App:
         self.HUDfont = pygame.font.Font(str(CAT_COMIC_FONT_PATH), 36)
         self.game_manager = GameManager(self.gameSurface)
         self.ui_manager = pygame_gui.UIManager(self.size, str(PROJECT_ROOT / "assets" / "themes" / "theme.json"))
-        self.menu = Menu(self.ui_manager,self.gameSurface)
+        self.menu = Menu(self.ui_manager,self.gameSurface,self.menu_context)
 
     def handleEvent(self, event):
         self.ui_manager.process_events(event)
@@ -130,10 +130,11 @@ class App:
         manage all calculation and detection process on the current loop
         """
         self.ui_manager.update(60)
-        if self.activeMenu == "game":
+        if self.menu_context.get_active_menu() == MenuContext.INGAME_MENU:
             keys = pygame.key.get_pressed()
             
             self.game_manager.on_loop(self.delta_time,keys,self)
+            
 
             if self.game_manager.game_over and not self.game_manager.score_saved:
                 self.menu.show_end_screen(self)
@@ -175,12 +176,18 @@ class App:
         if self.game_manager.game_over:
             self.menu.show_end_screen(self)
 
-        if self.activeMenu == "game":
+        if self.menu_context.get_active_menu() == MenuContext.INGAME_MENU:
             score_text = self.HUDfont.render(f"Score: {self.game_manager.player.score}", True, (255, 255, 255))
             health_text = self.HUDfont.render(f"Vie: {self.game_manager.player.health}", True, (255, 255, 255))
             self.gameSurface.blit(score_text, (10, 10))
             self.gameSurface.blit(health_text, (10, 40))
-        
+
+        if self.game_manager.boss is not None:
+            if self.game_manager.boss.elapsed_time <= 5:
+                self.menu.show_boss_intro(self)
+            else:
+                self.menu_context.set_active_menu(MenuContext.INGAME_MENU)
+
         self.ui_manager.draw_ui(self.gameSurface)
 
 

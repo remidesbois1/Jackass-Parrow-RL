@@ -40,6 +40,8 @@ class Boss(pygame.sprite.Sprite):
         self.lastEvasiveTime = 0
         self.deathTime = 0
         self.outroFinished = False
+        self.elapsed_time = None
+
 
         self.index_hole = 0
         self.attackSpeed = 1000
@@ -71,19 +73,15 @@ class Boss(pygame.sprite.Sprite):
 
         self.bouclier.update()
         
-        elapsed_time = time.time() - self.start_timer
+        self.elapsed_time = time.time() - self.start_timer
         # condition et action à déplacer dans la classe App
-        if elapsed_time <= 5:
-            menu.show_boss_intro(app)
-            return
-        else:
-            app.activeMenu = 'game'
+        
 
         #print(f"Elapsed time: {elapsed_time:.2f} seconds")
         #print(f"{time.time()} - {self.start_timer} = {time.time() - self.start_timer} ")
 
         #si l'intro est terminée
-        if elapsed_time > 5:
+        if self.elapsed_time > 5:
             # si le boss est mort
             if self.health <= 0:
                 #si en combat de boss
