@@ -106,6 +106,7 @@ class App:
 
         self.menu.handleMenu(event, self)
 
+        #menu game over
         if self.game_manager.game_over:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.input_box.collidepoint(event.pos):
@@ -135,9 +136,9 @@ class App:
             
             self.game_manager.on_loop(self.delta_time,keys,self)
             
-
+            # affichage end menu end game
             if self.game_manager.game_over and not self.game_manager.score_saved:
-                self.menu.show_end_screen(self)
+                self.menu_context.set_active_modal(MenuContext.END_GAME_MODAL)
 
 
 
@@ -184,17 +185,19 @@ class App:
             self.gameSurface.blit(score_text, (10, 10))
             self.gameSurface.blit(health_text, (10, 40))
 
-        if self.menu_context.get_active_modal() == MenuContext.INTRO_BOSS_MENU:
+        if self.menu_context.get_active_modal() == MenuContext.INTRO_BOSS_MODAL:
             self.menu.show_boss_intro(self)
 
-        if self.menu_context.get_active_modal() == MenuContext.OUTRO_BOSS_MENU:
+        if self.menu_context.get_active_modal() == MenuContext.OUTRO_BOSS_MODAL:
             self.menu.show_boss_win()
-
+            
+        if self.menu_context.get_active_modal() == MenuContext.END_GAME_MODAL:
+            self.menu.show_end_screen(self)
 
         if self.game_manager.boss is not None:
             elapsed_boss_time = time.time() - self.game_manager.boss.start_timer
             if elapsed_boss_time <= 5:
-                self.menu_context.set_active_modal(MenuContext.INTRO_BOSS_MENU)
+                self.menu_context.set_active_modal(MenuContext.INTRO_BOSS_MODAL)
             else:
                 self.menu_context.clear_active_modal()
                 self.menu_context.set_active_menu(MenuContext.INGAME_MENU)

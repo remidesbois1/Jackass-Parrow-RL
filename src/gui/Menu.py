@@ -355,9 +355,9 @@ class Menu:
 
     # pareil à réecrire
     def show_end_screen(self,app:"App"):
-        self.menu_context.set_active_menu(MenuContext.END_MENU)
+        self.menu_context.set_active_modal(MenuContext.END_GAME_MODAL)
         frame_surface = pygame.Surface((AppConfig.WIDTH // 1.3, AppConfig.HEIGHT // 1.3), pygame.SRCALPHA)
-        frame_surface.fill((0, 0, 0, 164))
+        frame_surface.fill((0, 0, 0, 150))
         frame_rect = frame_surface.get_rect(center=(AppConfig.WIDTH // 2, AppConfig.HEIGHT // 2))
         self.game_surface.blit(frame_surface, frame_rect)
 

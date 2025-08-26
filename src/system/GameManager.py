@@ -231,6 +231,7 @@ class GameManager:
                 self.world_manager.next_world()
                 self.load_tableau()
                 self.boss = None
+                app.menu_context.clear_active_modal()
 
         # si tous les ennemis sont morts et que la propriété boss est null on passe au niveau suivant
         if self.enemy_group.nbAlive() == 0 and self.boss is None and not self.boss_mode:
