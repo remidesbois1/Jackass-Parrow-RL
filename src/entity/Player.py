@@ -29,7 +29,6 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self,x=200,y=200):
         pygame.sprite.Sprite.__init__(self)
-        self.lastSpeed = 0
         self.shield = False
         self.evasive = False
         self.invinsibilyTime = 0
@@ -166,10 +165,8 @@ class Player(pygame.sprite.Sprite):
                     self.speed = 0
                 if self.knockback > 0:
                     self.knockback = -self.knockback/2
-    
-    def update(self,scene: Surface, Blocs : BlockGroup, enemy_bullets: EnemyBullet, delta_time: float):
+    def render(self, scene: Surface):
         self.current_time = pygame.time.get_ticks()
-
         if self.direction == 'gauche':
             scene.blit(self.image, self.rect)
         else:
@@ -196,7 +193,8 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.image.fill((0, 0, 0, 0))
                 self.image.blit(self.walk1, (0, 0))
-        self.lastSpeed = self.speed
+    
+    def update(self,scene: Surface, Blocs : BlockGroup, enemy_bullets: EnemyBullet, delta_time: float): 
 
         self.check_bullets(enemy_bullets)
        
@@ -219,7 +217,6 @@ class Player(pygame.sprite.Sprite):
             
         #blocs
         self.check_blocks(Blocs)
-
 
         if not self.onGround:
             self.gravity += 60

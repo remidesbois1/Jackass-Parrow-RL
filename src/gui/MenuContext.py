@@ -14,7 +14,7 @@ class MenuContext:
         if menu not in (self.START_MENU, self.INGAME_MENU, self.END_MENU):
             raise ValueError(f"Invalid menu: {menu}")
         if menu in (self.INTRO_BOSS_MENU,self.OUTRO_BOSS_MENU):
-            raise ValueError(f"{menu} est un menu modal: ")
+            raise ValueError(f"{menu} est un menu modal et non un menu principal")
         self.__active_menu = menu
 
     def set_active_modal(self, modal:str):

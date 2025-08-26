@@ -23,6 +23,9 @@ class Boss(pygame.sprite.Sprite):
     Y = 110
     SIZE =(144,286)
     START_TIME = pygame.time.get_ticks()
+    BOUCLIER_COLUMN = 15
+    BOUCLIER_WIDTH = 1
+    BOUCLIER_HEIGHT = 3
     
 
     def __init__(self,game_surface,enemy_bullets):
@@ -62,18 +65,34 @@ class Boss(pygame.sprite.Sprite):
         # évite de laisser 2 fois le même trou de bouclier d'affilée
         choice.remove(self.index_hole)
         self.index_hole = random.choice(choice)
-
-        for i in range(3):
-            if i != self.index_hole:
-                self.bouclier.add(Block(15,12-(i*4),1,3))
-        self.bouclier.draw(self.game_surface)
-
-    def update(self, player_bullets, player : Player, menu_context: MenuContext):
-
-        self.game_surface.blit(self.image, self.rect)
-
-        self.bouclier.update()
         
+        for bouclier_index in choice:
+            self.bouclier.add(
+                Block(self.BOUCLIER_COLUMN,
+                        12-(bouclier_index*4),
+                        self.BOUCLIER_WIDTH,
+                        self.BOUCLIER_HEIGHT)
+                )
+
+    
+    def render(self):
+        self.game_surface.blit(self.image, self.rect)
+        #si pas evasif
+        if  time.time() - self.lastEvasiveTime > 2:
+            self.image.fill((0,0,0,0))
+            self.image.blit(self.TEXTURE_TOM, (0, 0))
+            self.image.set_alpha(255)
+        #si evasif
+        else:
+            self.image.fill((0,0,0,0))
+            self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
+            if int(time.time() * 1000) % 200 <= 100:
+                self.image.set_alpha(200)
+            else:
+                self.image.set_alpha(150)
+        self.bouclier.render()
+        
+    def update(self, player_bullets, player : Player, menu_context: MenuContext):
 
         #la fonction update est appelée uniquement si l'active_menu est INGAME_MENU
         
@@ -104,6 +123,7 @@ class Boss(pygame.sprite.Sprite):
 
             # si pas evasif
             if  time.time() - self.lastEvasiveTime > 2:
+                # collision avec les tirs du joueur
                 for bullet in player_bullets:
                     if pygame.sprite.collide_rect(self, bullet):
                         self.generateBouclier()
@@ -113,16 +133,7 @@ class Boss(pygame.sprite.Sprite):
                         # colère
                         if self.health <= 3:
                             self.attackSpeed = 700
-                self.image.fill((0,0,0,0))
-                self.image.blit(self.TEXTURE_TOM, (0, 0))
-                self.image.set_alpha(255)
+                
 
-            #si evasif
-            else:
-                self.image.fill((0,0,0,0))
-                self.image.blit(self.TEXTURE_TOM_DAMAGE, (0, 0))
-                if int(time.time() * 1000) % 200 <= 100:
-                    self.image.set_alpha(200)
-                else:
-                    self.image.set_alpha(150)
+           
                 
