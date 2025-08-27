@@ -7,6 +7,7 @@ import pygame_gui
 from pathlib import Path
 from src.appConfig import AppConfig
 from src.gui.MenuContext import MenuContext
+from src.system.GameConfig import APPConfig
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -50,6 +51,8 @@ class Menu:
         self.save_button_rect = None
         self.input_box_color = (255, 255, 255)
         self.user_text = ''
+        self.active = False
+        self.input_box = pygame.Rect(AppConfig.WIDTH // 2 - 100, AppConfig.HEIGHT // 1.6, 200, 50)
         
         self.setup_start_menu()
                 
@@ -117,6 +120,28 @@ class Menu:
                 self.leaderboard_window.kill()
                 self.leaderboard_window = None
                 self.leaderboard_close_button = None
+                
+        #menu game over
+        if app.game_manager.game_over:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.input_box.collidepoint(event.pos):
+                    self.active = not self.active
+                else:
+                    self.active = False
+                if self.save_button_rect.collidepoint(event.pos):
+                    app.save_score()
+                self.input_box_color = (0, 150, 0) if self.active else (255, 255, 255)
+            if event.type == pygame.KEYDOWN:
+                if self.active:
+                    if event.key == pygame.K_RETURN:
+                        app.save_score()
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.user_text = self.user_text[:-1]
+                    else:
+                        self.user_text += event.unicode
+
+                
+        
 
     def show_start_screen(self , app: "App"):
         self.menu_context.set_active_menu(MenuContext.START_MENU)
@@ -359,7 +384,6 @@ class Menu:
 
         self.game_surface.blit(background_surface, (background_x, background_y))
 
-
     # pareil à réecrire
     def show_end_screen(self,app:"App"):
         self.menu_context.set_active_modal(MenuContext.END_GAME_MODAL)
@@ -377,10 +401,10 @@ class Menu:
         self.game_surface.blit(score_text, score_text_rect)
 
         # zone saisie pseudo
-        pygame.draw.rect(self.game_surface, self.input_box_color, app.input_box, 2)
+        pygame.draw.rect(self.game_surface, self.input_box_color, self.input_box, 2)
         input_text = self.button_font.render(self.user_text, True, (255, 255, 255))
         input_text_rect = input_text.get_rect(
-            topleft=(app.input_box.x + 5, app.input_box.y + 5))
+            topleft=(self.input_box.x + 5, self.input_box.y + 5))
         self.game_surface.blit(input_text, input_text_rect)
 
 

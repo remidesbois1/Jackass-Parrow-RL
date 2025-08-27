@@ -15,6 +15,7 @@ from src.system.LevelCollection import LevelCollection
 from src.entity.EnemyGroup import EnemyGroup
 from src.system.Sound import Sound
 from src.system.GameManager import GameManager
+from src.system.GameConfig import APPConfig
 
 
 # === CONSTANTES DE CHEMINS ===
@@ -40,34 +41,28 @@ SCORES_FILE_PATH = PROJECT_ROOT / "scores.json"
 class App:
     def __init__(self):
         
-        self.sounds = None
-        self.HUDfont = None
-        self.menu = None
-        
-
-        self.background = None
+        #time management
         self.clock = pygame.time.Clock()
         self.delta_time = 1
-
         self._running = True
+        
+        #surface
         self.gameSurface = None
-        self.size = self.width, self.height = 1280, 800
-
+        self.size = APPConfig.WIDTH, APPConfig.HEIGHT
+        self.background = None
+        
+        #menu
         self.menu_context = MenuContext(MenuContext.START_MENU)
-
-        self.input_box = pygame.Rect(self.width // 2 - 100, self.height // 1.6, 200, 50)
-
+        self.HUDfont = None
+        self.menu = None
         self.ui_manager = None
-
         
-        self.active = False
+        #sound
+        self.sounds = None
         
-
-        self.boss_button_rect = pygame.Rect(0, 0, 0, 0)
-        
+        #game
         self.game_manager : GameManager = None
 
-   
 
     def start(self):
         pygame.init()
@@ -94,25 +89,7 @@ class App:
 
         self.menu.handleMenu(event, self)
 
-        #menu game over
-        if self.game_manager.game_over:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.input_box.collidepoint(event.pos):
-                    self.active = not self.active
-                else:
-                    self.active = False
-                if self.menu.save_button_rect.collidepoint(event.pos):
-                    self.save_score()
-                self.menu.input_box_color = (0, 150, 0) if self.active else (255, 255, 255)
-            if event.type == pygame.KEYDOWN:
-                if self.active:
-                    if event.key == pygame.K_RETURN:
-                        self.save_score()
-                    elif event.key == pygame.K_BACKSPACE:
-                        self.menu.user_text = self.menu.user_text[:-1]
-                    else:
-                        self.menu.user_text += event.unicode
-
+        
         
     def onLoop(self):
         """
