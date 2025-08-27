@@ -44,6 +44,13 @@ class Menu:
         self.lore_close_button = None
         self.leaderboard_close_button = None
         
+        self.start_button_rect = pygame.Rect(0, 0, 0, 0)
+        
+        #save score menu (end menu)
+        self.save_button_rect = None
+        self.input_box_color = (255, 255, 255)
+        self.user_text = ''
+        
         self.setup_start_menu()
                 
     def setup_start_menu(self):
@@ -147,10 +154,10 @@ class Menu:
 
 
         start_text = self.button_font.render("Lancer", True, (255, 255, 255))
-        app.start_button_rect = start_text.get_rect()
-        app.start_button_rect.width += 10 * 2
-        app.start_button_rect.height += 10 * 2
-        app.start_button_rect.center = (AppConfig.WIDTH // 2, AppConfig.HEIGHT // 2)
+        self.start_button_rect = start_text.get_rect()
+        self.start_button_rect.width += 10 * 2
+        self.start_button_rect.height += 10 * 2
+        self.start_button_rect.center = (AppConfig.WIDTH // 2, AppConfig.HEIGHT // 2)
 
     def hide_start_menu(self):
         self.start_button.hide()
@@ -370,8 +377,8 @@ class Menu:
         self.game_surface.blit(score_text, score_text_rect)
 
         # zone saisie pseudo
-        pygame.draw.rect(self.game_surface, app.input_box_color, app.input_box, 2)
-        input_text = self.button_font.render(app.user_text, True, (255, 255, 255))
+        pygame.draw.rect(self.game_surface, self.input_box_color, app.input_box, 2)
+        input_text = self.button_font.render(self.user_text, True, (255, 255, 255))
         input_text_rect = input_text.get_rect(
             topleft=(app.input_box.x + 5, app.input_box.y + 5))
         self.game_surface.blit(input_text, input_text_rect)
@@ -379,13 +386,13 @@ class Menu:
 
         # bouton enregistrer
         save_text = self.button_font.render("Enregistrer", True, (255, 255, 255))
-        app.save_button_rect = save_text.get_rect(center=(AppConfig.WIDTH // 2, AppConfig.HEIGHT // 1.3))
+        self.save_button_rect = save_text.get_rect(center=(AppConfig.WIDTH // 2, AppConfig.HEIGHT // 1.3))
 
         # changement de couleur
         mouse_pos = pygame.mouse.get_pos()
         save_button_color = (0, 150, 0)
-        if app.save_button_rect.collidepoint(mouse_pos):
+        if self.save_button_rect.collidepoint(mouse_pos):
             save_button_color = (0, 200, 0)
 
-        pygame.draw.rect(self.game_surface, save_button_color, app.save_button_rect, border_radius=10)
-        self.game_surface.blit(save_text, app.save_button_rect)
+        pygame.draw.rect(self.game_surface, save_button_color, self.save_button_rect, border_radius=10)
+        self.game_surface.blit(save_text, self.save_button_rect)

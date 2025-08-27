@@ -40,13 +40,9 @@ SCORES_FILE_PATH = PROJECT_ROOT / "scores.json"
 class App:
     def __init__(self):
         
-        self.close_lore_button_rect = None
-        self.lore_button_rect = None
         self.sounds = None
         self.HUDfont = None
         self.menu = None
-        self.leaderboard_button_rect = None
-        self.start_button_rect = None
         
 
         self.background = None
@@ -58,22 +54,14 @@ class App:
         self.size = self.width, self.height = 1280, 800
 
         self.menu_context = MenuContext(MenuContext.START_MENU)
-        self.show_start_menu = True
-        self.show_lore = False
-        self.start_button_rect = pygame.Rect(0, 0, 0, 0)
 
         self.input_box = pygame.Rect(self.width // 2 - 100, self.height // 1.6, 200, 50)
 
         self.ui_manager = None
 
-        self.input_box_color = (255, 255, 255)
+        
         self.active = False
-        self.user_text = ''
-        self.save_button_rect = None
-
-        self.show_leaderboard = False
-        self.close_button_rect = None
-        self.show_leaderboard_button = True
+        
 
         self.boss_button_rect = pygame.Rect(0, 0, 0, 0)
         
@@ -113,17 +101,17 @@ class App:
                     self.active = not self.active
                 else:
                     self.active = False
-                if self.save_button_rect.collidepoint(event.pos):
+                if self.menu.save_button_rect.collidepoint(event.pos):
                     self.save_score()
-                self.input_box_color = (0, 150, 0) if self.active else (255, 255, 255)
+                self.menu.input_box_color = (0, 150, 0) if self.active else (255, 255, 255)
             if event.type == pygame.KEYDOWN:
                 if self.active:
                     if event.key == pygame.K_RETURN:
                         self.save_score()
                     elif event.key == pygame.K_BACKSPACE:
-                        self.user_text = self.user_text[:-1]
+                        self.menu.user_text = self.menu.user_text[:-1]
                     else:
-                        self.user_text += event.unicode
+                        self.menu.user_text += event.unicode
 
         
     def onLoop(self):
@@ -152,25 +140,12 @@ class App:
         self.game_manager = GameManager(self.gameSurface)
         
 
-    def save_score(self):
-        try:
-            with open(SCORES_FILE_PATH, "r") as f:
-                data = json.load(f)
-        except FileNotFoundError:
-            data = []
 
-        data.append({"pseudo": self.user_text, "score": self.game_manager.player.score})
-
-        with open(SCORES_FILE_PATH, "w") as f:
-            json.dump(data, f)
-
-        self.restart()
 
     def render(self)->None:
         """
         manages all rendering processes on the current loop.
         """
-        #print(self.show_start_menu)
         if self.menu_context.get_active_menu() == MenuContext.START_MENU:
             self.menu.show_start_screen(self)
 
@@ -225,3 +200,17 @@ class App:
             pygame.display.flip()
             self.delta_time =  self.clock.tick(60) / 1000.0
         self.shutdown()
+        
+    def save_score(self):
+        try:
+            with open(SCORES_FILE_PATH, "r") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            data = []
+
+        data.append({"pseudo": self.menu.user_text, "score": self.game_manager.player.score})
+
+        with open(SCORES_FILE_PATH, "w") as f:
+            json.dump(data, f)
+
+        self.restart()
