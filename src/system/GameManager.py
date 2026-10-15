@@ -166,17 +166,18 @@ class GameManager:
             delta_time (float): Temps écoulé depuis la dernière frame.
         """
         self.render_game_background()
-        self.player.update(
-            self.game_surface, self.blocks, self.enemy_bullets, delta_time
-        )
+        
+        
+        self.player.render(self.game_surface)
         self.blocks.draw(self.game_surface)
         self.bullets.draw(self.game_surface)
         self.enemy_group.draw(self.game_surface)
         self.enemy_bullets.draw(self.game_surface)
         if self.fight_boss:
-            self.boss.update(self.bullets, self.player, app.menu, app)
+            self.boss.render()
+            
         if self.game_over:
-            app.menu.show_end_screen()
+            app.menu.show_end_screen(app)
 
     def on_loop(self, delta_time: float, keys: ScancodeWrapper, app: "App"):
         """
@@ -188,19 +189,31 @@ class GameManager:
             app (App): Instance principale de l'application.
         """
         WIDTH = 1280
-
-        self.blocks.update()
-        self.player.handleMove(keys, self.bullets, delta_time)
-        self.enemy_group.update(self.player, self.enemy_bullets, self.bullets)
-        self.enemy_bullets.update(WIDTH, self.blocks, delta_time)
-
-        # si combat de boss contre tom on ajoute les boucliers du boss aux blocs
-        if self.fight_boss and self.world_manager.get_current_world_type == WorldType.MONDE_JUNGLE:
-            self.bullets.update(
-                WIDTH, self.blocks.sprites() + self.boss.bouclier.sprites(), delta_time
+        
+        # arrêt du jeu pendant l'affichage d'un menu modal
+        if app.menu_context.get_active_modal() is None:
+            
+            self.player.update(
+                self.game_surface, 
+                self.blocks, 
+                self.enemy_bullets, 
+                delta_time
             )
-        else:
-            self.bullets.update(WIDTH, self.blocks, delta_time)
+            if self.fight_boss:
+                self.boss.update(self.bullets, self.player, app.menu.menu_context)
+                
+            self.blocks.render()
+            self.player.handleMove(keys, self.bullets, delta_time)
+            self.enemy_group.update(self.player, self.enemy_bullets, self.bullets)
+            self.enemy_bullets.update(WIDTH, self.blocks, delta_time)
+
+            # si combat de boss contre tom on ajoute les boucliers du boss aux blocs
+            if self.fight_boss and self.world_manager.get_current_world_type() == WorldType.MONDE_JUNGLE:
+                self.bullets.update(
+                    WIDTH, self.blocks.sprites() + self.boss.bouclier.sprites(), delta_time
+                )
+            else:
+                self.bullets.update(WIDTH, self.blocks, delta_time)
 
         # check player mort
         if self.player.health <= 0 and not self.game_over:
@@ -218,6 +231,7 @@ class GameManager:
                 self.world_manager.next_world()
                 self.load_tableau()
                 self.boss = None
+                app.menu_context.clear_active_modal()
 
         # si tous les ennemis sont morts et que la propriété boss est null on passe au niveau suivant
         if self.enemy_group.nbAlive() == 0 and self.boss is None and not self.boss_mode:

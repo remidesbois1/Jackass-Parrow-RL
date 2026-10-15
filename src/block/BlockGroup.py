@@ -41,5 +41,5 @@ class BlockGroup(pygame.sprite.Group):
             enemyGroup.add(new_enemy)
         enemyGroup.draw(self.scene)
 
-    def update(self):
+    def render(self):
         self.draw(self.scene)

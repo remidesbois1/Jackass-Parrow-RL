@@ -21,16 +21,14 @@ PLAYER_FIRING_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_firing
 PLAYER_DEAD_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_dead.png"
 
 class Player(pygame.sprite.Sprite):
-    BASE_SPEED = 360  
-    KNOCKBACK_FORCE = 400  
-    MAX_FALL_SPEED = 900 
-    JUMP_FORCE = 1210
-    KNOCKBACK_FORCE = 1200
+    BASE_SPEED = 400 
+    MAX_FALL_SPEED = 1000 
+    JUMP_FORCE = 1250
+    KNOCKBACK_FORCE = 1500
     BULLET_DELAY = 1000  # Délai entre les tirs en millisecondes 1sec
 
     def __init__(self,x=200,y=200):
         pygame.sprite.Sprite.__init__(self)
-        self.lastSpeed = 0
         self.shield = False
         self.evasive = False
         self.invinsibilyTime = 0
@@ -167,10 +165,8 @@ class Player(pygame.sprite.Sprite):
                     self.speed = 0
                 if self.knockback > 0:
                     self.knockback = -self.knockback/2
-
-    def update(self,scene: Surface, Blocs : BlockGroup, enemy_bullets: EnemyBullet, delta_time: float):
+    def render(self, scene: Surface):
         self.current_time = pygame.time.get_ticks()
-
         if self.direction == 'gauche':
             scene.blit(self.image, self.rect)
         else:
@@ -197,17 +193,17 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.image.fill((0, 0, 0, 0))
                 self.image.blit(self.walk1, (0, 0))
-        self.lastSpeed = self.speed
+    
+    def update(self,scene: Surface, Blocs : BlockGroup, enemy_bullets: EnemyBullet, delta_time: float): 
 
         self.check_bullets(enemy_bullets)
        
         # knockback 
-        self.rect.x += self.knockback * delta_time
-        self.knockback *= 0.8
+        #self.rect.x += self.knockback * delta_time
+        self.knockback *= 0.85
 
         if abs(self.knockback) < 0.1:
             self.knockback = 0
-
         #maj du saut et de la pause
 
         self.onGround = False
@@ -222,10 +218,10 @@ class Player(pygame.sprite.Sprite):
         #blocs
         self.check_blocks(Blocs)
 
-
         if not self.onGround:
             self.gravity += 60
             
-        self.rect.y += (self.gravity) * delta_time
-        self.rect.x += self.speed * delta_time
+        self.rect.y += int((self.gravity) * delta_time)
+        self.rect.x += int((self.speed + self.knockback)* delta_time)
+       
 

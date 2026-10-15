@@ -1,5 +1,9 @@
 from enum import Enum
+from enum import IntEnum
 
+class APPConfig(IntEnum):
+    WIDTH = 1280
+    HEIGHT = 800
 
 class WorldType(Enum):
     MONDE_FORET = 0
@@ -19,20 +23,20 @@ class DIFFICULTY(Enum):
 # les mondes augmente leur niveau de danger de 1 à chaque tableau
 # un monde peut avoir un niveau de danger par défaut paramétré
 # Chaque boss est associé à un type de monde, Chaque monde a un boss spécifique
-# les niveaux de difficultée sont définis par une série de monde et le nombre de niveaux avant de rencontrer le boss
+# les niveaux de difficultée sont définis par une série de monde paramétrés
 # une difficulté est dîtes infini si elle ne possède pas de monde de fin de partie, elle boucle donc sur la liste de monde
 # quand une difficulté infini boucle, le niveau de danger par défaut de ses mondes augmente de 3
 worlds_config = {
     DIFFICULTY.FACILE: [
         {"monde": WorldType.MONDE_FORET, "nb_level": 10},
         {"monde": WorldType.MONDE_JUNGLE, "nb_level": 10},
-        {"monde": WorldType.FIN_DE_PARTIE, "nb_level": None},
+        #{"monde": WorldType.FIN_DE_PARTIE, "nb_level": None},
     ],
     DIFFICULTY.NORMAL: [
         {"monde": WorldType.MONDE_FORET, "nb_level": 6},
         {"monde": WorldType.MONDE_JUNGLE, "nb_level": 7, "danger": 2},
         {"monde": WorldType.MONDE_VOLCAN, "nb_level": 7, "danger": 3},
-        {"monde": WorldType.FIN_DE_PARTIE, "nb_level": None},
+        #{"monde": WorldType.FIN_DE_PARTIE, "nb_level": None},
     ],
     DIFFICULTY.DIFFICILE: [
         {"monde": WorldType.MONDE_JUNGLE, "nb_level": 6, "danger": 2},

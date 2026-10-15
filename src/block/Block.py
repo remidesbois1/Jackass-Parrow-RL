@@ -9,7 +9,7 @@ BLOCK_IMAGE_PATH = PROJECT_ROOT/ "assets" / "img" / "block" / "block.png"
 DIRT_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "block" / "dirt.png"
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, spawnable=False, transparent=False):
+    def __init__(self, x:int, y:int, width:int, height:int, spawnable=False, transparent=False):
         super().__init__()
         self.spawnable = spawnable
         self.transparent = transparent

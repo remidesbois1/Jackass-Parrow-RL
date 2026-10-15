@@ -1,0 +1,95 @@
+{
+    "defaults":
+    {
+        "colours":
+        {
+            "normal_bg":"#25292e",
+            "hovered_bg":"#35393e",
+            "disabled_bg":"#25292e",
+            "selected_bg":"#25292e",
+            "dark_bg":"#15191e",
+            "normal_text":"#c5cbd8",
+            "hovered_text":"#d5dbe8",
+            "selected_text":"#d5dbe8",
+            "disabled_text":"#6d736f",
+            "link_text": "#0000EE",
+            "link_hover": "#0000FF",
+            "link_selected": "#551A8B",
+            "text_shadow": "#777777",
+            "border_colour": "#888888",
+            "disabled_border_colour": "#505050",
+            "filled_bar":"#f4251b",
+            "unfilled_bar":"#15191e"
+        }
+    },
+
+    "@menu_button":
+    {
+        "font":
+        {
+            "name": "cat_comic",
+            "size": "35",
+            "regular_path": "assets/fonts/Cat Comic.ttf"
+        },
+        "colours":
+        {
+            "normal_text": "#FFFFFF",
+            "hovered_text": "#FFFFFF"
+        },
+        "images":
+        {
+            "normal_image": {
+                "path": "assets/img/gui/button_normal.png"
+            },
+            "hovered_image": {
+                "path": "assets/img/gui/button_normal.png"
+            },
+            "selected_image": {
+                "path": "assets/img/gui/button_normal.png"
+            },
+            "disabled_image": {
+                "path": "assets/img/gui/button_normal.png"
+            }
+        },
+        "misc":
+        {
+            "auto_scale_images": "1",
+            "state_transitions":
+            {
+                "normal_hovered": "0.3",
+                "hovered_normal": "0.3"
+            },
+            "border_width": "1",
+            "shadow_width": "15",
+            "text_horiz_alignment": "center",
+            "text_vert_alignment": "center"
+        }
+    },
+    "@window": {
+        "colours": {
+            "dark_bg": "#00000000"
+        },
+        "misc": {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "10",
+            "border_width": "0",
+            "shadow_width": "0",
+            "title_bar_height": "0"
+        }
+    },
+    "@text_box_in_window": {
+        "colours": {
+            "dark_bg": "#00000000",
+            "normal_text": "#FFFFFF"
+        },
+        "font": {
+            "name": "dimbo_regular",
+            "size": "20",
+            "regular_path": "assets/fonts/Dimbo Regular.ttf"
+        },
+        "misc": {
+            "border_width": "0",
+            "shadow_width": "0"
+        }
+    }
+}
