@@ -202,9 +202,8 @@ class GameManager:
             if self.fight_boss:
                 self.boss.update(self.bullets, self.player, app.menu.menu_context)
                 
-            self.blocks.render()
             self.player.handleMove(keys, self.bullets, delta_time)
-            self.enemy_group.update(self.player, self.enemy_bullets, self.bullets)
+            self.enemy_group.update(self.player, self.enemy_bullets, self.bullets, delta_time)
             self.enemy_bullets.update(WIDTH, self.blocks, delta_time)
 
             # si combat de boss contre tom on ajoute les boucliers du boss aux blocs

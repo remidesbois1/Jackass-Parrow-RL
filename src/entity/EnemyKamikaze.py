@@ -20,9 +20,9 @@ class EnemyKamikaze(Enemy):
         ]
         self.walk_index = 0
         self.image = self.walk_frames[self.walk_index]
-        self.rect = self.image.get_rect(x=x, y=y)
+        self.rect = self.image.get_frect(x=x, y=y)
         self.platform = platform
-        self.speed = 5
+        self.speed = 300  # Pixels par seconde (5 pixels par image à 60 FPS).
         self.direction = 1
         self.animation_timer = 0
         self.animation_delay = 100
@@ -36,11 +36,11 @@ class EnemyKamikaze(Enemy):
         self.explosion_delay = 50
         self.is_exploding = False
 
-    def update(self, player, bullet_group, player_bullets):
+    def update(self, player, bullet_group, player_bullets, delta_time):
         current_time = pygame.time.get_ticks()
 
         if self.alive:
-            self.rect.x += self.speed * self.direction
+            self.rect.x += self.speed * self.direction * delta_time
 
             if self.rect.right > self.platform.rect.right - 15:
                 self.direction = -1

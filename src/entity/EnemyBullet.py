@@ -10,7 +10,7 @@ class EnemyBullet(Bullet):
     def __init__(self, x, y, direction):
         super().__init__(x, y, direction)
         self.image = pygame.image.load(str(CHICKEN_IMAGE_PATH)).convert_alpha()
-        self.rect = self.image.get_rect(x=x, y=y)
+        self.rect = self.image.get_frect(x=x, y=y)
         if self.direction == 'Valerie Chevalariass':
             self.image = pygame.transform.flip(self.image, True, False)
 

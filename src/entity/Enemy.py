@@ -18,13 +18,13 @@ class Enemy(pygame.sprite.Sprite):
         self.sounds = Sound()
         self.direction = 'gauche'
         self.image = pygame.image.load(str(CHEVALIER_IMAGE_PATH)).convert_alpha()
-        self.rect = self.image.get_rect(x=x, y=y)
+        self.rect = self.image.get_frect(x=x, y=y)
         self.alive = True
         self.last_shot_time = 0
         self.angryCoef = 1
         self.score = 100
 
-    def update(self, player, bullet_group, player_bullets):
+    def update(self, player, bullet_group, player_bullets, delta_time):
         min_speed, max_speed = int(1600*self.angryCoef),int(2200*self.angryCoef)
         current_time = pygame.time.get_ticks()
         if current_time - self.last_shot_time > randint(min_speed,max_speed) and self.alive and player.health > 0:
@@ -37,7 +37,7 @@ class Enemy(pygame.sprite.Sprite):
                 bullet.kill()
                 player.addScore(self.score)
         if not self.alive:
-            self.rect.y -= 5
+            self.rect.y -= 300 * delta_time
 
 
 
@@ -64,4 +64,4 @@ class EnemyAngwy(Enemy):
         self.score = 150
         self.angryCoef = 0.7
         self.image = pygame.image.load(str(CHEVALIER_ANGWY_IMAGE_PATH)).convert_alpha()
-        self.rect = self.image.get_rect(x=x, y=y)
+        self.rect = self.image.get_frect(x=x, y=y)

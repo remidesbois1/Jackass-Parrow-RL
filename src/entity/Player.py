@@ -25,6 +25,7 @@ class Player(pygame.sprite.Sprite):
     MAX_FALL_SPEED = 1000 
     JUMP_FORCE = 1250
     KNOCKBACK_FORCE = 1500
+    GRAVITY_ACCELERATION = 3600  # Équivalent aux 60 px/s ajoutés à 60 FPS.
     BULLET_DELAY = 1000  # Délai entre les tirs en millisecondes 1sec
 
     def __init__(self,x=200,y=200):
@@ -40,7 +41,7 @@ class Player(pygame.sprite.Sprite):
         self.shield_image = pygame.image.load(str(PLAYER_SHIELD_PATH)).convert_alpha()
         self.player_image = self.image.copy()
         self.firing_image = pygame.image.load(str(PLAYER_FIRING_PATH)).convert_alpha()
-        self.rect = self.image.get_rect(y=y, x=x)
+        self.rect = self.image.get_frect(y=y, x=x)
         self.dead_image = pygame.image.load(str(PLAYER_DEAD_PATH)).convert_alpha()
         self.image = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
 
@@ -137,7 +138,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.health <= 0:
             self.image = self.dead_image
-            self.rect = self.image.get_rect(x=self.rect.x,y=self.rect.y)
+            self.rect = self.image.get_frect(x=self.rect.x,y=self.rect.y)
             self.speed = 0
 
     def check_blocks(self, Blocs: BlockGroup):
@@ -200,7 +201,7 @@ class Player(pygame.sprite.Sprite):
        
         # knockback 
         #self.rect.x += self.knockback * delta_time
-        self.knockback *= 0.85
+        self.knockback *= 0.85 ** (delta_time * 60)
 
         if abs(self.knockback) < 0.1:
             self.knockback = 0
@@ -219,9 +220,9 @@ class Player(pygame.sprite.Sprite):
         self.check_blocks(Blocs)
 
         if not self.onGround:
-            self.gravity += 60
+            self.gravity += self.GRAVITY_ACCELERATION * delta_time
             
-        self.rect.y += int((self.gravity) * delta_time)
-        self.rect.x += int((self.speed + self.knockback)* delta_time)
+        self.rect.y += self.gravity * delta_time
+        self.rect.x += (self.speed + self.knockback) * delta_time
        
 

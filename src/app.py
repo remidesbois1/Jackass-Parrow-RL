@@ -43,7 +43,8 @@ class App:
         
         #time management
         self.clock = pygame.time.Clock()
-        self.delta_time = 1
+        self.delta_time = 1 / 60
+        self.vsync_enabled = False
         self._running = True
         
         #surface
@@ -71,9 +72,11 @@ class App:
         pygame.mixer.music.load(str(MAIN_THEME_PATH))
         pygame.mixer.music.play(-1)
         self.sounds = Sound()
-        self.gameSurface = pygame.display.set_mode(
-            self.size, pygame.HWSURFACE | pygame.DOUBLEBUF
-        )
+        try:
+            self.gameSurface = pygame.display.set_mode(self.size, vsync=1)
+        except pygame.error:
+            self.gameSurface = pygame.display.set_mode(self.size)
+        self.vsync_enabled = pygame.display.is_vsync()
         self._running = True
         self.background = pygame.image.load(str(BACKGROUND_IMAGE_PATH)).convert_alpha()
 
@@ -95,7 +98,7 @@ class App:
         """
         manage all calculation and detection process on the current loop
         """
-        self.ui_manager.update(60)
+        self.ui_manager.update(self.delta_time)
         if self.menu_context.get_active_menu() == MenuContext.INGAME_MENU:
             keys = pygame.key.get_pressed()
             
@@ -168,6 +171,7 @@ class App:
         Run the main loop of the game who is divided in 3 main functions (handleEvent, onLoop & render)
         """
         self._running = True
+        last_frame_time = time.perf_counter()
 
         while self._running:
             for event in pygame.event.get():
@@ -175,7 +179,11 @@ class App:
             self.onLoop()
             self.render()
             pygame.display.flip()
-            self.delta_time =  self.clock.tick(60) / 1000.0
+            # La VSync règle la cadence ; le limiteur sert de repli si elle est absente.
+            self.clock.tick(0 if self.vsync_enabled and pygame.display.get_active() else 60)
+            frame_time = time.perf_counter()
+            self.delta_time = min(frame_time - last_frame_time, 0.05)
+            last_frame_time = frame_time
         self.shutdown()
         
     def save_score(self):
