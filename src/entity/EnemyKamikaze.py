@@ -1,6 +1,7 @@
 from random import randint
 import pygame
 from src.entity.Enemy import Enemy
+from src.system import mechanics
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -22,7 +23,7 @@ class EnemyKamikaze(Enemy):
         self.image = self.walk_frames[self.walk_index]
         self.rect = self.image.get_frect(x=x, y=y)
         self.platform = platform
-        self.speed = 300  # Pixels par seconde (5 pixels par image à 60 FPS).
+        self.speed = mechanics.CHICKEN_SPEED
         self.direction = 1
         self.animation_timer = 0
         self.animation_delay = 100

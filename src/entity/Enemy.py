@@ -4,6 +4,7 @@ import pygame
 
 from src.entity.EnemyBullet import EnemyBullet
 from src.system.Sound import Sound
+from src.system import mechanics
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -12,7 +13,7 @@ CHEVALIER_MORT_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" /"entity" / "chevali
 CHEVALIER_ANGWY_IMAGE_PATH = PROJECT_ROOT / "assets" / "img" / "entity" / "chevalier_angwy.png"
 
 class Enemy(pygame.sprite.Sprite):
-    SIZE = (75,90)
+    SIZE = mechanics.KNIGHT_SIZE
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.sounds = Sound()

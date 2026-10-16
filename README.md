@@ -39,6 +39,21 @@ Une fois la partie terminée, pensez à enregistrer votre score !
 * Essayez d'utiliser un maximum la descente rapide, car vous êtes vulnérable dans les airs.
 * À la fin du combat, Tom de l'Abbaye tire très vite. Restez caché derrière votre bouclier et attendez le bon moment pour lui asséner le coup fatal.
 
+## Mode headless (simulation sans affichage)
+
+Le mode headless permet d'exécuter de nombreuses parties en parallèle sans
+Pygame, sons ni chargement d'images. Il prépare une future intégration IA ;
+aucun entraînement n'est lancé.
+
+```powershell
+.\.venv\Scripts\python.exe main.py --headless --envs 256 --workers 8 --steps 5000
+```
+
+API Python : `HeadlessEnv`, `BatchEnv`, actions combinables, graines
+reproductibles, `reset` / `step` et chemin rapide `advance`.
+Voir [la documentation headless](doc/headless.md) pour les mesures,
+les observations, les options et les différences avec le jeu graphique.
+
 ## Crédits
 
 *   **Tristan Sauvage :** Développeur

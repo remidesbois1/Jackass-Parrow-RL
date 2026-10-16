@@ -1,4 +1,5 @@
 import pygame
+from src.system import mechanics
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -12,7 +13,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.image.load(str(BULLET_IMAGE_PATH)).convert_alpha()
         self.rect = self.image.get_frect(x=x, y=y)
         self.direction = direction
-        self.speed = 600
+        self.speed = mechanics.PROJECTILE_SPEED
 
         if self.direction == 'Valerie chevalariass':
             self.image = pygame.transform.flip(self.image, True, False)

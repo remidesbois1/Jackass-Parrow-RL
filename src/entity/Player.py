@@ -7,6 +7,7 @@ from src.entity.Bullet import Bullet
 from src.block.BlockGroup import BlockGroup
 from src.entity.EnemyBullet import EnemyBullet
 from src.system.Sound import Sound
+from src.system import mechanics
 
 
 # Chemin racine du projet (ajuste selon la profondeur de ton fichier)
@@ -21,12 +22,12 @@ PLAYER_FIRING_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_firing
 PLAYER_DEAD_PATH = PROJECT_ROOT / "assets" / "img" / "player" / "player_dead.png"
 
 class Player(pygame.sprite.Sprite):
-    BASE_SPEED = 400 
-    MAX_FALL_SPEED = 1000 
-    JUMP_FORCE = 1250
-    KNOCKBACK_FORCE = 1500
-    GRAVITY_ACCELERATION = 3600  # Équivalent aux 60 px/s ajoutés à 60 FPS.
-    BULLET_DELAY = 1000  # Délai entre les tirs en millisecondes 1sec
+    BASE_SPEED = mechanics.PLAYER_SPEED
+    MAX_FALL_SPEED = mechanics.MAX_FALL_SPEED
+    JUMP_FORCE = mechanics.JUMP_FORCE
+    KNOCKBACK_FORCE = mechanics.KNOCKBACK_FORCE
+    GRAVITY_ACCELERATION = mechanics.GRAVITY
+    BULLET_DELAY = mechanics.SHOT_DELAY_MS
 
     def __init__(self,x=200,y=200):
         pygame.sprite.Sprite.__init__(self)
