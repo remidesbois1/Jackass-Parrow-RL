@@ -51,6 +51,8 @@ def build_parser():
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--eval-every", type=positive_int, default=20_000_000, help="decisions between evaluations")
     p.add_argument("--eval-envs", type=positive_int, default=256, help="games per evaluation (normal start)")
+    p.add_argument("--eval-episode-limit", type=positive_int,
+                   help="decisions per evaluation game (default: --episode-limit; 1800 = 2 minutes)")
     p.add_argument("--checkpoint-every", type=positive_int, default=20_000_000)
     p.add_argument("--torch-threads", type=positive_int, help="CPU threads for torch")
     p.add_argument("--no-cuda-graph", action="store_true", help="launch simulation kernels eagerly on CUDA")
@@ -93,9 +95,9 @@ class Evaluator:
         import torch
         from src.rl.vector.game import GraphedStep, VectorGame
 
-        self.limit = args.episode_limit
+        self.limit = args.eval_episode_limit or args.episode_limit
         self.game = VectorGame(args.eval_envs, device=device, frame_skip=args.frame_skip,
-                               episode_limit=args.episode_limit, weights=VECTOR_REWARD, seed=seed)
+                               episode_limit=self.limit, weights=VECTOR_REWARD, seed=seed)
         self.pending = torch.ones(args.eval_envs, dtype=torch.bool, device=device)
         self.game.count_mask = self.pending
         self.step = GraphedStep(self.game) if graph else self.game.step
@@ -140,6 +142,8 @@ def main(argv=None):
     # Distribution argument checks synchronise with the GPU on every step.
     torch.distributions.Distribution.set_default_validate_args(False)
     graph = device.type == "cuda" and not args.no_cuda_graph
+    # TF32 matmuls for the network only; the simulation stays in float64.
+    torch.backends.cuda.matmul.allow_tf32 = True
 
     start_step = 0
     if args.resume:

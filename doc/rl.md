@@ -461,8 +461,8 @@ des états synchronisés (joueur, ennemis, projectiles, boss, dégâts, chargeme
 ```powershell
 # CPU local (~10 000 décisions/s, 1024 parties par défaut)
 .\.venv\Scripts\python.exe -m examples.train_vector --timesteps 100000000 --output runs/vector-cpu
-# GPU : 16 384 parties, pas de simulation rejoué en un seul graphe CUDA
-python -m examples.train_vector --envs 16384 --n-steps 32 --timesteps 1500000000 --eval-every 50000000 --eval-envs 512 --checkpoint-every 50000000 --output runs/hard-v1
+# GPU (A40) : 32 768 parties × 16 pas, simulation en graphe CUDA, réseau en TF32
+python -m examples.train_vector --envs 32768 --n-steps 16 --timesteps 1500000000 --eval-every 50000000 --eval-envs 512 --eval-episode-limit 1800 --checkpoint-every 50000000 --output runs/hard-v1
 ```
 
 Débits mesurés le 5 novembre 2026 (politique et PPO inclus sauf mention) :
@@ -474,6 +474,8 @@ Débits mesurés le 5 novembre 2026 (politique et PPO inclus sauf mention) :
 | A40, 16 384 parties, sans graphe CUDA (simulation seule) | 193 000 |
 | A40, 16 384 parties, graphe CUDA (simulation seule) | 645 000 |
 | A40, 16 384 parties, graphe CUDA, entraînement complet | 424 000 |
+| A40, jeu avec tableaux HARD, 16 384 × 32 pas, entraînement complet | 380 000 |
+| A40, jeu avec tableaux HARD, 32 768 × 16 pas + TF32, entraînement complet | 481 000 |
 
 Sur CUDA, le moteur ne lit jamais de valeur du GPU pendant un pas : `GraphedStep`
 capture tout `VectorGame.step` (≈10 000 noyaux) dans un graphe rejoué en un appel.
