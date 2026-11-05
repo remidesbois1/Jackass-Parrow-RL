@@ -45,6 +45,7 @@ class HeadlessRenderer:
         self._textures = {}
         for name, path in (
             ("background", "background/fondGameJam.png"),
+            ("background_red", "background/fondGameJamRed.png"),
             ("block", "block/block.png"), ("dirt", "block/dirt.png"),
             ("player", "player/player.png"), ("walk", "player/playerWalk.png"),
             ("shield", "player/player_shield.png"), ("firing", "player/player_firing.png"),
@@ -57,7 +58,7 @@ class HeadlessRenderer:
             picture = pygame.image.load(str(ASSETS / "img" / path))
             if name.startswith("boss"):
                 picture = pygame.transform.scale(picture, m.BOSS_SIZE)
-            if name == "background" and picture.get_size() != (m.WIDTH, m.HEIGHT):
+            if name.startswith("background") and picture.get_size() != (m.WIDTH, m.HEIGHT):
                 picture = pygame.transform.scale(picture, (m.WIDTH, m.HEIGHT))
             self._textures[name, False] = picture
             self._textures[name, True] = pygame.transform.flip(picture, True, False)
@@ -129,7 +130,9 @@ class HeadlessRenderer:
         """Return pixels/present a window without advancing RNG, timers or state."""
         if self.closed:
             raise RuntimeError("renderer is closed")
-        self.surface.blit(self._textures["background", False], (0, 0))
+        # Red sky from the second loop on, where the HARD tableaux are played.
+        background = "background_red" if engine.world > 0 else "background"
+        self.surface.blit(self._textures[background, False], (0, 0))
         self._draw_map(engine)
         boss = engine.boss
         if boss is not None:

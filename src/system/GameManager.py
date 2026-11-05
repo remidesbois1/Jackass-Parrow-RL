@@ -146,11 +146,15 @@ class GameManager:
 
     def render_game_background(self):
         """
-        dessine le fond du jeu selon le monde actuel.
+        dessine le fond du jeu selon le monde actuel : rouge pour le volcan et pour
+        les boucles HARD de la jungle (après le premier boss), comme à l'origine.
         """
-        if self.world_manager.get_current_world_type() == WorldType.MONDE_VOLCAN:
+        world_type = self.world_manager.get_current_world_type()
+        if world_type == WorldType.MONDE_VOLCAN or (
+            world_type == WorldType.MONDE_JUNGLE and self.world_manager.get_current_world().hard
+        ):
             self.game_surface.blit(self.background_list[1], (0, 0))
-        elif self.world_manager.get_current_world_type() == WorldType.MONDE_JUNGLE:
+        elif world_type == WorldType.MONDE_JUNGLE:
             self.game_surface.blit(self.background_list[0], (0, 0))
         else:
             raise NotImplementedError(
