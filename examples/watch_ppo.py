@@ -93,6 +93,8 @@ def build_parser():
     parser.add_argument("--max-decisions", type=positive_int, help="stop after a finite number of policy decisions")
     parser.add_argument("--screenshot", type=Path, help="save one frame after one simulated second")
     parser.add_argument("--log-file", type=Path, help="optional JSON-lines log for detached launches")
+    parser.add_argument("--time-limit", action="store_true",
+                        help="keep the training episode limit; by default a game only ends on death")
     return parser
 
 
@@ -107,6 +109,9 @@ def main(argv=None):
         config = load_config(args.config)
     except ValueError as error:
         parser.error(str(error))
+    if not args.time_limit and config.get("schema") not in ("JackassParrowCurriculum-v1", "JackassParrowCourses-v2"):
+        # Watching plays the real game: no decision limit, the game ends on death.
+        config = {**config, "env_kwargs": {**config.get("env_kwargs", {}), "episode_limit": None}}
 
     def report(event, **values):
         line = json.dumps({"event": event, **values})

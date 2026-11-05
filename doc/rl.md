@@ -300,8 +300,10 @@ très peu entraînée peut rester immobile, parer en boucle ou tirer mal orient�
 
 Pour un essai fini : `--episodes 2` ou `--max-decisions 300`. L'option
 `--screenshot image.png` sauvegarde une image après une seconde simulée.
-Les limites de l'épisode viennent de la configuration ; elles ne sont pas
-changées pour rendre une démonstration plus favorable. Le rendu et l'inférence
+Une partie regardée n'a pas de limite de durée : elle se termine à la mort
+(ou à la victoire en mode boss). `--time-limit` rétablit la limite de décisions
+de l'entraînement ; les exercices de curriculum et de parcours gardent toujours
+la leur. Le rendu et l'inférence
 CPU peuvent ralentir légèrement le temps réel, sans changer le pas physique.
 
 Une démo locale courte a été entraînée sur 16 384 décisions avec huit
