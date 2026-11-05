@@ -179,11 +179,15 @@ son point d'entrée sous `if __name__ == "__main__":` sous Windows.
 
 Le mode headless reproduit la difficulté **OLD**, celle utilisée par
 `GameManager.start_game()` : sept tableaux jungle sans répétition immédiate,
-Tom, puis nouvelle boucle avec danger augmenté de trois. Le mode boss seul est
+Tom, puis nouvelle boucle avec danger augmenté de trois. La première boucle tire
+ses tableaux dans 1..5 ; les boucles suivantes tirent dans 5..10, c'est-à-dire
+`LEVEL5` et les cinq tableaux `HARD`, comme la version d'origine du jeu après la
+vague 8 (`NORMAL_LEVEL_IDS` / `HARD_LEVEL_IDS` dans `level_data.py`, utilisés
+par le jeu graphique et les deux moteurs). Le mode boss seul est
 également disponible. Les autres difficultés, dont certains mondes ne sont pas
 implémentés dans le jeu graphique, ne sont pas exposées.
 
-Les dix géométries normales et l'arène boss sont partagées avec le jeu graphique
+Les dix géométries (cinq normales, cinq HARD) et l'arène boss sont partagées avec le jeu graphique
 dans `src/system/level_data.py`. Les constantes communes sont dans
 `src/system/mechanics.py`. Les systèmes physiques headless et graphique restent
 distincts ; les tests de comparaison protègent les géométries, dimensions et

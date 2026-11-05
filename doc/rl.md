@@ -448,7 +448,7 @@ avec cette configuration n'affiche aucun cercle : le moteur ne possède plus
 cet objectif. Charger un ancien modèle v2 avec son ancienne configuration
 continue, en revanche, à utiliser son aide de navigation originale.
 
-## Entraînement rapide vectorisé (schéma v1, CPU ou GPU)
+## Entraînement rapide vectorisé (schéma v2, CPU ou GPU)
 
 Le lanceur `examples.train_vector` remplace la collecte SB3 multi-processus
 par un moteur **torch vectorisé** (`src/rl/vector/engine.py`) : des milliers de
@@ -462,7 +462,7 @@ des états synchronisés (joueur, ennemis, projectiles, boss, dégâts, chargeme
 # CPU local (~10 000 décisions/s, 1024 parties par défaut)
 .\.venv\Scripts\python.exe -m examples.train_vector --timesteps 100000000 --output runs/vector-cpu
 # GPU : 16 384 parties, pas de simulation rejoué en un seul graphe CUDA
-python -m examples.train_vector --envs 16384 --n-steps 32 --timesteps 1500000000 --eval-every 50000000 --eval-envs 512 --checkpoint-every 50000000 --output runs/vector-v1
+python -m examples.train_vector --envs 16384 --n-steps 32 --timesteps 1500000000 --eval-every 50000000 --eval-envs 512 --checkpoint-every 50000000 --output runs/hard-v1
 ```
 
 Débits mesurés le 5 novembre 2026 (politique et PPO inclus sauf mention) :
@@ -479,14 +479,17 @@ Sur CUDA, le moteur ne lit jamais de valeur du GPU pendant un pas : `GraphedStep
 capture tout `VectorGame.step` (≈10 000 noyaux) dans un graphe rejoué en un appel.
 `--no-cuda-graph` revient au lancement direct des noyaux.
 
-**Observation `JackassParrow-v1` (228 valeurs).** Égocentrique : positions
+**Observation `JackassParrow-v2` (265 valeurs).** Égocentrique : positions
 relatives au centre du joueur, ennemis et projectiles triés par distance. Pour
 chaque ennemi : type, direction, âge du dernier tir, plateforme, et trois faits
 calculés sur la géométrie exacte : alignement avec la ligne du tir du joueur,
 ligne de tir dégagée, tir qui partirait vers lui. Tom : PV, trou du bouclier,
-délais, ligne de tir par le trou. Les 11 blocs du tableau sont donnés relativement
-au joueur, avec l'identifiant de tableau. Pas de temps restant : les épisodes
-coupés par la limite sont prolongés par la valeur estimée (bootstrap).
+délais, ligne de tir par le trou. Les 12 blocs du tableau sont donnés relativement
+au joueur, avec l'identifiant de tableau (11 valeurs : arène, 5 normaux, 5 HARD).
+Jusqu'à 8 ennemis (les tableaux HARD ont 8 plateformes d'apparition). Pas de
+temps restant : les épisodes coupés par la limite sont prolongés par la valeur
+estimée (bootstrap). La v2 ajoute les tableaux HARD des boucles suivantes ; les
+modèles v1 de la branche `main` ne se chargent pas avec ce schéma.
 
 **14 actions** au lieu de 24 combinaisons : PARADE annule toute direction, et
 SAUT + PARADE annule le saut dans les commandes du jeu ; ces doublons sont retirés.
@@ -517,8 +520,8 @@ jouent sur le **moteur de référence** (`FeatureEnv` synchronise l'état vers
 l'encodeur vectorisé à chaque décision) :
 
 ```powershell
-.\.venv\Scripts\python.exe main.py --watch --model runs/vector-v1/best.pt --config runs/vector-v1/config.json
-.\.venv\Scripts\python.exe -m examples.evaluate_ppo --model runs/vector-v1/best.pt --config runs/vector-v1/config.json --episodes 40 --seed 600000
+.\.venv\Scripts\python.exe main.py --watch --model runs/hard-v1/best.pt --config runs/hard-v1/config.json
+.\.venv\Scripts\python.exe -m examples.evaluate_ppo --model runs/hard-v1/best.pt --config runs/hard-v1/config.json --episodes 40 --seed 600000
 ```
 
 ### Sur RunPod
@@ -529,17 +532,10 @@ interactive : le code est envoyé en base64 dans un terminal (`scripts/runpod_po
 Lancer l'entraînement avec `setsid nohup ... &` pour qu'il survive à la
 déconnexion, et supprimer le pod après avoir rapatrié le dossier du run.
 
-### Premier résultat (`runs/vector-v1`, 5 novembre 2026)
+### Résultat sans tableaux HARD (branche `main`)
 
-400 M décisions sur une A40, en 16 minutes, pour environ 0,45 $ de GPU.
-Évaluation sur le **moteur de référence**, 40 graines inédites (600000 à 600039),
-parties limitées à 2 minutes (`config-2min.json`), politique déterministe :
-
-| Modèle | Tableaux | Score | Tom vaincu | Morts |
-| --- | --- | --- | --- | --- |
-| parcours-v2-suite (guidé) | 1,3 | 200 | 0 | 16 / 40 |
-| vector-v1, 100 M décisions | 10,8 | 4 286 | 0,75 | 6 / 40 |
-| vector-v1, 400 M décisions (`best.pt`) | 15,8 | 6 864 | 1,9 | 2 / 40 |
-
-Une seule graine d'entraînement : refaire un run avec une autre `--seed` avant
-de conclure sur la stabilité de la méthode.
+Sur `main` (schéma v1, boucles toujours dans 1..5), `vector-v1` a atteint en
+400 M décisions sur une A40 (16 minutes, ~0,45 $) 15,8 tableaux et 1,9 victoire
+sur Tom par partie de 2 minutes sur le moteur de référence, contre 1,3 tableau
+pour l'ancien meilleur modèle. Ce chiffre ne vaut pas pour cette branche : à
+partir de la deuxième boucle, le jeu y utilise les tableaux HARD.

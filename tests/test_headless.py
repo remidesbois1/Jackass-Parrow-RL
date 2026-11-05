@@ -210,6 +210,19 @@ assert not any(n.startswith(('pygame', 'numpy', 'torch')) for n in sys.modules)
         self.assertIsNone(env.boss)
         self.assertEqual((env.world, env.level, env.danger), (1, 1, 4))
         self.assertFalse(env.done)
+        seen = set()
+        for _ in range(60):
+            self.assertIn(env.level_id, range(5, 11))
+            seen.add(env.level_id)
+            previous = env.level_id
+            env.enemies.clear()
+            env.advance(0)
+            if env.boss is not None:
+                env.boss.health = 0
+                env.advance(0)
+            else:
+                self.assertNotEqual(env.level_id, previous)
+        self.assertEqual(seen, set(range(5, 11)))  # LEVEL5 and the five HARD tableaux
 
     def test_boss_hit_immunity_gap_and_boss_mode_win(self):
         env = HeadlessEnv(1, Config(boss_mode=True))

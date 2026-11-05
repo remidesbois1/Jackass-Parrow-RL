@@ -127,6 +127,12 @@ LEVELS = [
     LEVEL5HARD,
 ]
 
+# Identifiants (1-based, bornes incluses) tirés par boucle de la jungle. La
+# première boucle utilise 1..5 ; les suivantes 5..10 (LEVEL5 et les cinq
+# tableaux HARD), comme la version d'origine du jeu après la vague 8.
+NORMAL_LEVEL_IDS = (1, 5)
+HARD_LEVEL_IDS = (5, 10)
+
 
 BOSS_JUNGLE = [
     (1, 1),

@@ -10,7 +10,7 @@ from functools import lru_cache
 from random import Random
 
 from src.system import mechanics as m
-from src.system.level_data import BOSS_JUNGLE, LEVELS
+from src.system.level_data import BOSS_JUNGLE, HARD_LEVEL_IDS, LEVELS, NORMAL_LEVEL_IDS
 from src.system.GameConfig import DIFFICULTY, worlds_config
 
 OLD_WORLD_LEVELS = worlds_config[DIFFICULTY.OLD][0]["nb_level"]
@@ -177,10 +177,13 @@ class HeadlessEnv:
             self.player.speed = self.player.knockback = 0
         else:
             # The graphical OLD difficulty loops through jungle with +3 danger.
+            # The first loop uses tableaux 1..5; later loops use 5..10 (LEVEL5
+            # and the five HARD tableaux), like the original game after wave 8.
+            lo, hi = HARD_LEVEL_IDS if self.world > 0 else NORMAL_LEVEL_IDS
             previous = self.level_id
-            self.level_id = self.rng.randint(1, 5)
+            self.level_id = self.rng.randint(lo, hi)
             while self.level_id == previous:
-                self.level_id = self.rng.randint(1, 5)
+                self.level_id = self.rng.randint(lo, hi)
             self.level += 1
             self.danger = self.world * 3 + self.level
             self.boss = None

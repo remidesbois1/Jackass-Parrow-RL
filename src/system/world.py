@@ -2,6 +2,7 @@ from pathlib import Path
 from enum import Enum
 from random import randint
 from src.system.GameConfig import WorldType
+from src.system.level_data import HARD_LEVEL_IDS, NORMAL_LEVEL_IDS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -18,22 +19,23 @@ class BossType(Enum):
 
 class World:
     def __init__(
-        self, level_collection, world_index: WorldType, nb_levels: int, danger_level=0
+        self, level_collection, world_index: WorldType, nb_levels: int, danger_level=0, hard=False
     ):
         self.world_type_index = world_index
         self.level_collection = level_collection
         self.nb_levels = nb_levels
         self.current_level = 0
         self.danger_level = danger_level
+        self.hard = hard
 
     def get_next_level_id(self, last_level_id: int) -> int:
         # à changer après l'implémentation des mondes
         idNiveau = None
         while idNiveau == last_level_id or idNiveau is None:
             if self.world_type_index == WorldType.MONDE_VOLCAN:
-                idNiveau = randint(5, 10)
+                idNiveau = randint(*HARD_LEVEL_IDS)
             elif self.world_type_index == WorldType.MONDE_JUNGLE:
-                idNiveau = randint(1, 5)
+                idNiveau = randint(*(HARD_LEVEL_IDS if self.hard else NORMAL_LEVEL_IDS))
         self.current_level += 1
         self.danger_level += 1
         return idNiveau

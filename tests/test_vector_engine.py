@@ -10,9 +10,10 @@ except ImportError:  # optional training extra
 
 from src.headless import Config, HeadlessEnv
 from src.headless.engine import level_geometry
+from src.system.level_data import HARD_LEVEL_IDS, NORMAL_LEVEL_IDS
 
 if torch is not None:
-    from src.rl.vector.engine import MAX_ENEMIES, VectorEngine
+    from src.rl.vector.engine import VectorEngine
     from src.rl.vector.sync import sync_from_headless
 
 PLAYER_FIELDS = ("px", "py", "speed", "grav", "kb", "dirn", "health", "score", "last_shot",
@@ -75,15 +76,22 @@ class VectorEngineParityTests(unittest.TestCase):
 
     def test_every_tick_matches_reference_from_synchronised_states(self):
         loads = hits = kills = 0
-        for seed, boss_mode in ((0, False), (1, False), (2, True), (3, False), (4, True)):
+        # (seed, boss mode, second loop): the second loop plays the HARD tableaux.
+        for seed, boss_mode, loop in ((0, False, False), (1, False, False), (2, True, False),
+                                      (3, False, False), (4, True, False), (5, False, True), (6, False, True)):
             ref = HeadlessEnv(seed=seed, config=Config(frame_skip=1, max_episode_steps=None,
                                                        boss_mode=boss_mode))
             vec = VectorEngine(1, frame_skip=1, episode_limit=None, boss_mode=boss_mode, seed=seed)
             rng = Random(seed)
             action = 0
             for tick in range(1500):
-                if ref.terminated:
+                if ref.terminated or (loop and tick == 0):
                     ref.reset()
+                    if loop:
+                        ref.world, ref.level = 1, 0
+                        ref._load_level()
+                if rng.random() < 0.004 and ref.boss is None:
+                    ref.enemies.clear()  # visit more tableaux, including level loads
                 if rng.random() < 0.15:
                     action = rng.randrange(32)
                 if rng.random() < 0.01:
@@ -128,21 +136,22 @@ class VectorEngineParityTests(unittest.TestCase):
         n = 256
         vec = VectorEngine(n, seed=7)
         everyone = torch.ones(n, dtype=torch.bool)
-        for world in (0, 1):
+        for world, (lo, hi) in ((0, NORMAL_LEVEL_IDS), (1, HARD_LEVEL_IDS)):
+            seen = set()
             for _ in range(20):
                 previous = vec.level_id.clone()
                 vec.world.fill_(world)
                 vec._load_level(everyone, torch.zeros(n, dtype=torch.bool))
                 lid = vec.level_id
-                self.assertTrue(bool(((lid >= 1) & (lid <= 5)).all()))
-                repeated = (previous >= 1) & (previous <= 5) & (previous == lid)
-                self.assertFalse(bool(repeated.any()))
+                self.assertTrue(bool(((lid >= lo) & (lid <= hi)).all()))
+                self.assertFalse(bool((previous == lid).any()))
+                seen.update(lid.tolist())
                 for i in range(0, n, 37):
                     blocks, spawn, spawnable = level_geometry(int(lid[i]))
                     alive = vec.e_alive[i]
                     danger = int(vec.danger[i])
                     self.assertEqual(danger, world * 3 + int(vec.level[i]))
-                    self.assertEqual(int(alive.sum()), min(danger, len(spawnable), MAX_ENEMIES))
+                    self.assertEqual(int(alive.sum()), min(danger, len(spawnable)))
                     self.assertEqual((float(vec.px[i]), float(vec.py[i])), spawn)
                     platforms = set()
                     for e in torch.nonzero(alive).flatten().tolist():
@@ -153,6 +162,7 @@ class VectorEngineParityTests(unittest.TestCase):
                         kind = int(vec.e_kind[i, e])
                         self.assertIn(kind, (2, int(danger > 5)))
                     self.assertEqual(len(platforms), int(alive.sum()))
+            self.assertEqual(seen, set(range(lo, hi + 1)))
             vec.reset(everyone)
 
     def test_varied_starts_cover_every_tableau_tom_and_second_loop(self):

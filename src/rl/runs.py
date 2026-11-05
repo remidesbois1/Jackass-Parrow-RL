@@ -11,7 +11,7 @@ def load_config(path=None):
     if not isinstance(config, dict):
         raise ValueError("run config must be a JSON object")
     if config.get("schema", ENV_ID) not in (ENV_ID, "JackassParrowCurriculum-v1", "JackassParrowCourses-v2",
-                                            "JackassParrow-v1"):
+                                            "JackassParrow-v2"):
         raise ValueError("config schema does not match this environment version")
     if config.get("reward_mode", "learning") not in ("score", "learning"):
         raise ValueError("config reward_mode must be score or learning")
@@ -27,7 +27,7 @@ def make_run_env(config, *, render_mode=None):
     if config.get("schema") == "JackassParrowCurriculum-v1":
         from .curriculum import CurriculumEnv
         return CurriculumEnv(**kwargs)
-    if config.get("schema") == "JackassParrow-v1":
+    if config.get("schema") == "JackassParrow-v2":
         from .vector.env import FeatureEnv
         env = FeatureEnv(**kwargs)
     else:

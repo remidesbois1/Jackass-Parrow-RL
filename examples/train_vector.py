@@ -1,10 +1,10 @@
-"""Fast PPO on the batched torch engine (schema JackassParrow-v1), CPU or GPU.
+"""Fast PPO on the batched torch engine (schema JackassParrow-v2), CPU or GPU.
 
 Simulation, features, rollouts and updates all stay on one device; nothing is
 copied per step between processes. Training happens only when run explicitly:
 
-python -m examples.train_vector --timesteps 200000000 --output runs/vector-v1
-python -m examples.train_vector --resume runs/vector-v1/final.pt --timesteps 100000000 --output runs/vector-v1b
+python -m examples.train_vector --timesteps 200000000 --output runs/hard-v1
+python -m examples.train_vector --resume runs/hard-v1/final.pt --timesteps 100000000 --output runs/hard-v1b
 """
 
 import argparse

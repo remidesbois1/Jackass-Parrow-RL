@@ -24,7 +24,9 @@ class WorldManager:
             danger_level = worlds_config[self.__difficulty][self.__current_world_index]['danger']
         else:
             danger_level = 0
-        self.current_world : World = World(self.level_collection, world_id, nb_levels,danger_level+self.danger_offset)
+        # Après une boucle complète des mondes, la jungle utilise les tableaux HARD.
+        self.current_world : World = World(self.level_collection, world_id, nb_levels,danger_level+self.danger_offset,
+                                           hard=self.danger_offset > 0)
         
     def get_current_world(self) -> World:
         return self.current_world

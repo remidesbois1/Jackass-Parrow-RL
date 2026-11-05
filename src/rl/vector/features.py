@@ -1,4 +1,4 @@
-"""Egocentric numeric observation (schema ``JackassParrow-v1``) for a VectorEngine.
+"""Egocentric numeric observation (schema ``JackassParrow-v2``) for a VectorEngine.
 
 Positions are relative to the player's centre, so the same situation looks the
 same anywhere on the map. Enemies, bullets and projectiles are sorted by
@@ -15,17 +15,18 @@ from types import MappingProxyType
 import torch
 
 from src.system import mechanics as m
-from .engine import (BOSS_H, BOSS_X, BOSS_Y, MAX_BLOCKS, MAX_ENEMIES, PBH, PBW, PH, PW,
+from .engine import (BOSS_H, BOSS_X, BOSS_Y, LEVEL_COUNT, MAX_BLOCKS, MAX_ENEMIES, PBH, PBW, PH, PW,
                      EBH, EBW, SHIELD_H)
 
-SCHEMA = "JackassParrow-v1"
+# v2: HARD tableaux in later loops (11 level ids, 12 blocks, 8 enemy slots).
+SCHEMA = "JackassParrow-v2"
 W, H = float(m.WIDTH), float(m.HEIGHT)
 NEAREST_ENEMY_BULLETS = 8
 NEAREST_BULLETS = 3
 
 FEATURE_SHAPES = MappingProxyType({
     "player": (11,),
-    "context": (10,),
+    "context": (LEVEL_COUNT + 4,),
     "enemies": (MAX_ENEMIES, 13),
     "enemy_bullets": (NEAREST_ENEMY_BULLETS, 5),
     "bullets": (NEAREST_BULLETS, 4),
@@ -91,7 +92,7 @@ def encode(vec):
                           vec.on_ground.double(), vec.shield.double(),
                           _remaining(vec.ticks, vec.last_shot, m.SHOT_DELAY_MS),
                           _remaining(vec.ticks, vec.last_hit, m.INVULNERABILITY_MS)), 1)
-    level_onehot = _onehot(vec.level_id.clamp(min=0), 6)
+    level_onehot = _onehot(vec.level_id.clamp(min=0), LEVEL_COUNT)
     alive = vec.e_alive
     context = torch.cat((level_onehot, torch.stack((
         vec.level.double() / 7, vec.world.clamp(max=3).double() / 3, vec.danger.double() / 10,

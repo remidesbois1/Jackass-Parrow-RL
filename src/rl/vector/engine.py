@@ -15,10 +15,11 @@ import torch
 
 from src.headless.engine import OLD_WORLD_LEVELS, level_geometry
 from src.system import mechanics as m
+from src.system.level_data import HARD_LEVEL_IDS, LEVELS, NORMAL_LEVEL_IDS
 
-LEVEL_COUNT = 6  # 0 = boss arena, 1..5 = jungle tableaux used by OLD difficulty
-MAX_BLOCKS = 11
-MAX_ENEMIES = 6
+LEVEL_COUNT = len(LEVELS) + 1  # 0 = boss arena, then every jungle tableau incl. HARD
+MAX_BLOCKS = 12
+MAX_ENEMIES = 8
 MAX_BULLETS = 6
 MAX_ENEMY_BULLETS = 32
 NO_HIT = -1_000_000
@@ -184,10 +185,14 @@ class VectorEngine:
         self.boss_shields = torch.where(boss, False, self.boss_shields)
         self.speed = torch.where(boss, 0.0, self.speed)
         self.kb = torch.where(boss, 0.0, self.kb)
-        # Jungle: uniform tableau among 1..5, different from the previous one.
+        # Jungle: uniform tableau of the loop's pool, different from the previous
+        # one (first loop 1..5, later loops 5..10 with the HARD tableaux).
+        hard = self.world > 0
+        lo = torch.where(hard, HARD_LEVEL_IDS[0], NORMAL_LEVEL_IDS[0])
+        hi = torch.where(hard, HARD_LEVEL_IDS[1], NORMAL_LEVEL_IDS[1])
         prev = self.level_id
-        repeatable = (prev >= 1) & (prev <= 5)
-        r = (self._rand(self.n) * torch.where(repeatable, 4, 5)).long() + 1
+        repeatable = (prev >= lo) & (prev <= hi)
+        r = (self._rand(self.n) * (hi - lo + 1 - repeatable.long())).long() + lo
         new_id = torch.where(repeatable, r + (r >= prev).long(), r)
         self.level_id = torch.where(normal, new_id, torch.where(boss, 0, self.level_id))
         self.level = torch.where(normal, self.level + 1, self.level)
