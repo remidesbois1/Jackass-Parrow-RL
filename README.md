@@ -54,6 +54,30 @@ reproductibles, `reset` / `step` et chemin rapide `advance`.
 Voir [la documentation headless](doc/headless.md) pour les mesures,
 les observations, les options et les différences avec le jeu graphique.
 
+## Gymnasium et apprentissage par renforcement
+
+Un adaptateur optionnel expose `JackassParrow-v0`, avec actions simultanées et
+observations numériques. Le [guide RL](doc/rl.md) détaille l'installation, les
+récompenses et un premier entraînement PPO avec Stable-Baselines3.
+
+```powershell
+uv sync --extra train
+.\.venv\Scripts\python.exe -m examples.train_ppo --check-only
+```
+
+Cette vérification ne lance aucun apprentissage. Les commandes pour entraîner
+et évaluer toi-même un agent sont dans le guide.
+
+Pour regarder un modèle jouer avec les graphismes du jeu et la physique exacte
+de l'entraînement :
+
+```powershell
+.\.venv\Scripts\python.exe main.py --watch --model runs/ppo-seed0/final.zip --config runs/ppo-seed0/config.json
+```
+
+Espace met en pause, les flèches règlent la vitesse, R rejoue, N change de partie,
+Tab alterne actions déterministes et échantillonnées, Échap ferme la fenêtre.
+
 ## Crédits
 
 *   **Tristan Sauvage :** Développeur

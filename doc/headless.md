@@ -109,10 +109,10 @@ interrompt immédiatement les ticks restants. Avancer après la fin lève une
 erreur jusqu'à un `reset` explicite. Aucun état final n'est perdu par un
 autoreset caché.
 
-`step()` suit la forme de retour à cinq valeurs courante, mais l'objet n'est
-pas une implémentation de `gymnasium.Env` : pas de dépendance Gymnasium,
-`action_space`, `observation_space`, padding ou normalisation imposés. Un futur
-adaptateur pourra les ajouter selon le modèle choisi.
+`HeadlessEnv.step()` suit la forme de retour à cinq valeurs courante, mais le
+noyau n'est pas une implémentation de `gymnasium.Env`. L'adaptateur optionnel
+`src.rl.JackassParrowEnv` ajoute les espaces, le padding et la normalisation
+sans importer ces dépendances dans le noyau. Voir le [guide Gymnasium/RL](rl.md).
 
 ### Observations
 
@@ -130,6 +130,9 @@ variable. Elles sont sérialisables en JSON.
 | `boss` | x, y, largeur, hauteur, PV, index du trou, invulnérabilité restante, délai de tir restant ; tuple vide si absent |
 | `boss_shields` | x, y, largeur, hauteur |
 | `context` | monde (à partir de 0), numéro du tableau, identifiant du niveau (0 = boss), danger, ticks physiques, décisions |
+
+`info()` expose aussi `health`, `levels_cleared`, `boss_damage` et
+`bosses_defeated` pour suivre la progression sans changer le score du jeu.
 
 La géométrie physique vient des dimensions des sprites existants, sans lire
 les images à l'exécution. Un test signale si ces dimensions deviennent obsolètes.

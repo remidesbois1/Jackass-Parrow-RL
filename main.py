@@ -7,6 +7,10 @@ def main():
         from src.headless.benchmark import main as headless_main
 
         headless_main(sys.argv[2:])
+    elif sys.argv[1:2] == ["--watch"]:
+        from examples.watch_ppo import main as watch_main
+
+        watch_main(sys.argv[2:])
     else:
         from src.app import App
 

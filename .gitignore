@@ -13,3 +13,6 @@ wheels/
 #autres
 scores.json
 tmp/
+
+# Local reinforcement-learning experiments (models, checkpoints, logs)
+runs/

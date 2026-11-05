@@ -133,7 +133,8 @@ class HeadlessEnv:
 
     __slots__ = ("config", "rng", "player", "enemies", "bullets", "enemy_bullets",
                  "boss", "blocks", "level_id", "level", "world", "danger", "ticks",
-                 "steps", "terminated", "truncated", "last_reward", "seed")
+                 "steps", "terminated", "truncated", "last_reward", "seed",
+                 "boss_damage", "bosses_defeated", "levels_cleared")
 
     def __init__(self, seed=None, config=None):
         self.config = config if config is not None else Config()
@@ -156,6 +157,7 @@ class HeadlessEnv:
         self.world = 0
         self.danger = 0
         self.ticks = self.steps = 0
+        self.boss_damage = self.bosses_defeated = self.levels_cleared = 0
         self.terminated = self.truncated = False
         self.last_reward = 0
         self._load_level(boss=self.config.boss_mode)
@@ -345,6 +347,7 @@ class HeadlessEnv:
             if bullet.active and boss.rect.overlaps(bullet.rect):
                 bullet.active = False
                 boss.health -= 1
+                self.boss_damage += 1
                 boss.last_hit = self.ticks
                 # Two opaque shields and one gap, different from the last gap.
                 boss.hole = self.rng.choice(tuple(i for i in range(3) if i != boss.hole))
@@ -389,6 +392,7 @@ class HeadlessEnv:
         if self.player.health <= 0:
             self.terminated = True
         elif self.boss is not None and self.boss.health <= 0:
+            self.bosses_defeated += 1
             if self.config.boss_mode:
                 self.terminated = True
             else:
@@ -396,6 +400,7 @@ class HeadlessEnv:
                 self.level = 0
                 self._load_level()
         elif self.boss is None and not self.enemies:
+            self.levels_cleared += 1
             self._load_level(boss=self.level == OLD_WORLD_LEVELS)
 
     @staticmethod
@@ -403,24 +408,35 @@ class HeadlessEnv:
         if not isinstance(action, int) or isinstance(action, bool) or not 0 <= action <= 31:
             raise ValueError("action must be an integer bit mask in [0, 31]")
 
-    def advance(self, action=Action.IDLE):
+    def advance(self, action=Action.IDLE, *, on_tick=None):
         """Run one decision without building observations; return delta score.
 
         Calling after termination requires an explicit reset (never autoresets).
         The episode limit counts decisions, not internal physics ticks.
+        Optional on_tick(engine) observes each completed physics tick; it must
+        not mutate the simulation. The batch/benchmark path uses no callback.
         """
         self.validate_action(action)
+        if on_tick is not None and not callable(on_tick):
+            raise ValueError("on_tick must be callable or None")
         if self.done:
             raise RuntimeError("episode is done; call reset() before advancing")
-        return self._advance(int(action))
+        return self._advance(int(action), on_tick=on_tick)
 
-    def _advance(self, action):
+    def _advance(self, action, *, on_tick=None):
         # Trusted path for BatchEnv, which validates the full batch up front.
         before = self.player.score
-        for _ in range(self.config.frame_skip):
-            self._tick(action)
-            if self.terminated:
-                break
+        if on_tick is None:
+            for _ in range(self.config.frame_skip):
+                self._tick(action)
+                if self.terminated:
+                    break
+        else:
+            for _ in range(self.config.frame_skip):
+                self._tick(action)
+                on_tick(self)
+                if self.terminated:
+                    break
         self.steps += 1
         limit = self.config.max_episode_steps
         self.truncated = not self.terminated and limit is not None and self.steps >= limit
@@ -439,7 +455,9 @@ class HeadlessEnv:
     def info(self):
         return {"ticks": self.ticks, "steps": self.steps, "score": self.player.score,
                 "world": self.world, "level": self.level, "level_id": self.level_id,
-                "danger": self.danger, "boss_mode": self.config.boss_mode}
+                "danger": self.danger, "boss_mode": self.config.boss_mode,
+                "boss_damage": self.boss_damage, "bosses_defeated": self.bosses_defeated,
+                "levels_cleared": self.levels_cleared, "health": self.player.health}
 
     def observe(self):
         """Detached numeric snapshot in pixels, seconds and HP (no hidden aliasing).
