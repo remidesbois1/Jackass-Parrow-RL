@@ -54,11 +54,36 @@ reproductibles, `reset` / `step` et chemin rapide `advance`.
 Voir [la documentation headless](doc/headless.md) pour les mesures,
 les observations, les options et les différences avec le jeu graphique.
 
+## Regarder l'IA entraînée (prête à l'emploi)
+
+La branche `withhardlevels` contient un modèle déjà entraîné, `models/hard-v1/`,
+sur le jeu complet : boucle jungle, Tom, puis boucles suivantes sur les tableaux
+HARD (fond rouge). Sur un autre PC, avec [uv](https://docs.astral.sh/uv/) installé :
+
+```powershell
+git clone https://github.com/remidesbois1/Jackass-Parrow-RL.git
+cd Jackass-Parrow-RL
+git checkout withhardlevels
+uv sync --extra train
+.\.venv\Scripts\python.exe main.py --watch --model models/hard-v1/model.pt --config models/hard-v1/config.json
+```
+
+`uv sync --extra train` installe Python, Pygame, Gymnasium et PyTorch (version
+CPU, aucun GPU n'est nécessaire pour regarder). Sous Linux/macOS, remplacer
+`.\.venv\Scripts\python.exe` par `.venv/bin/python`. La partie se termine
+uniquement à la mort de l'IA.
+
+Espace met en pause, les flèches règlent la vitesse (jusqu'à ×8), R rejoue,
+N change de partie, Tab alterne actions déterministes et échantillonnées,
+Échap ferme la fenêtre. Résultats, réentraînement et reprise sur GPU :
+[models/hard-v1/README.md](models/hard-v1/README.md).
+
 ## Gymnasium et apprentissage par renforcement
 
-Un adaptateur optionnel expose `JackassParrow-v0`, avec actions simultanées et
-observations numériques. Le [guide RL](doc/rl.md) détaille l'installation, les
-récompenses et un premier entraînement PPO avec Stable-Baselines3.
+Un adaptateur optionnel expose les environnements Gymnasium du jeu, avec actions
+simultanées et observations numériques. Le [guide RL](doc/rl.md) détaille
+l'installation, les récompenses, l'entraînement PPO avec Stable-Baselines3 et
+l'entraînement rapide vectorisé sur CPU ou GPU (`examples.train_vector`).
 
 ```powershell
 uv sync --extra train
@@ -67,16 +92,6 @@ uv sync --extra train
 
 Cette vérification ne lance aucun apprentissage. Les commandes pour entraîner
 et évaluer toi-même un agent sont dans le guide.
-
-Pour regarder un modèle jouer avec les graphismes du jeu et la physique exacte
-de l'entraînement :
-
-```powershell
-.\.venv\Scripts\python.exe main.py --watch --model runs/ppo-seed0/final.zip --config runs/ppo-seed0/config.json
-```
-
-Espace met en pause, les flèches règlent la vitesse, R rejoue, N change de partie,
-Tab alterne actions déterministes et échantillonnées, Échap ferme la fenêtre.
 
 ## Crédits
 

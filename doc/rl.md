@@ -543,3 +543,15 @@ Sur `main` (schéma v1, boucles toujours dans 1..5), `vector-v1` a atteint en
 sur Tom par partie de 2 minutes sur le moteur de référence, contre 1,3 tableau
 pour l'ancien meilleur modèle. Ce chiffre ne vaut pas pour cette branche : à
 partir de la deuxième boucle, le jeu y utilise les tableaux HARD.
+
+### Modèle fourni avec tableaux HARD (`models/hard-v1`)
+
+Entraîné 1 300 M décisions sur une A40 (~45 min, ~0,55 $), versionné avec la
+branche pour être regardé sans réentraîner. Sur le moteur de référence, 40 graines
+inédites, parties de 2 minutes : score 8 034 ± 304, 14,65 tableaux, 1,98 victoire
+sur Tom, 1 mort sur 40. Détails, courbes, commande de reprise :
+[models/hard-v1/README.md](../models/hard-v1/README.md).
+
+```powershell
+.\.venv\Scripts\python.exe main.py --watch --model models/hard-v1/model.pt --config models/hard-v1/config.json
+```

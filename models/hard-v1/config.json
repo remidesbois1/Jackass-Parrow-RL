@@ -1,0 +1,53 @@
+{
+  "schema": "JackassParrow-v2",
+  "algorithm": "PPO (on-device)",
+  "policy": "ActorCritic",
+  "env_kwargs": {
+    "frame_skip": 4,
+    "episode_limit": 3600,
+    "boss_mode": false
+  },
+  "reward_mode": "learning",
+  "reward_weights": {
+    "score": 0.01,
+    "boss_damage": 1.0,
+    "level_cleared": 1.0,
+    "boss_defeated": 5.0,
+    "health_lost": -1.0,
+    "death": -2.0,
+    "tick": -0.00025
+  },
+  "training_aids": {
+    "shaping": 1.0,
+    "random_start": 0.5
+  },
+  "resumed_from": null,
+  "seed": 1,
+  "device": "cuda",
+  "envs": 32768,
+  "requested_timesteps": 1500000000,
+  "observation_size": 265,
+  "actions": 14,
+  "versions": {
+    "torch": "2.8.0+cu128",
+    "gymnasium": "1.4.0",
+    "numpy": "2.1.2"
+  },
+  "hyperparameters": {
+    "n_steps": 16,
+    "epochs": 4,
+    "minibatches": 8,
+    "lr": 0.0003,
+    "final_lr_fraction": 0.1,
+    "gamma": 0.995,
+    "gae_lambda": 0.95,
+    "clip": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "hidden": [
+      256,
+      256
+    ]
+  }
+}
